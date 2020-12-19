@@ -21,14 +21,25 @@ public class GetNested {
     }
 
     /**
-     *
-     * @param key The key to search.
+     * @param key  The key to search.
      * @param type Class type to return.
-     * @param <T> The generic.
+     * @param <T>  The generic.
      * @return Returns a value as the specified class type.
      */
     public <T> T get(String key, Class<T> type) {
         return mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first().get(nested, Document.class).get(key, type);
+    }
+
+    /**
+     * @param key   The key to search.
+     * @param value The value to replace the old value of the key.
+     */
+    public void setString(String key, String value) {
+        Document guildDocument = mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first(); // Get guildDocument
+        Document nestedDocument = guildDocument.get(nested, Document.class); // Get nested document
+        nestedDocument.replace(key, value); // Replace value
+
+        mongoDb.getCollection("guilds").findOneAndReplace(mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first(), guildDocument); // Update database
     }
 
     /**
