@@ -39,7 +39,7 @@ public class LevelingRolesList implements Command {
             for (LevelingRolesDocument role : rolesList) {
                 // When there is a role to remove
                 if (!role.getRemove().equals("not set")) {
-                    roles.append("• level: `").append(role.getLevel()).append("` add: ").append(ctx.getGuild().getRoleById(role.getRole()).getAsMention()).append(" remove:").append(ctx.getGuild().getRoleById(role.getRole()).getAsMention() + "\n");
+                    roles.append("• level: `").append(role.getLevel()).append("` add: ").append(ctx.getGuild().getRoleById(role.getRole()).getAsMention()).append(" remove:").append(ctx.getGuild().getRoleById(role.getRemove()).getAsMention() + "\n");
                     continue;
                 }
                 // When there is only a role to add
