@@ -1,0 +1,60 @@
+package com.myra.dev.marian.commands.leveling.administrator.levelingRoles;
+
+import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.management.commands.Command;
+import com.myra.dev.marian.management.commands.CommandContext;
+import com.myra.dev.marian.management.commands.CommandSubscribe;
+import com.myra.dev.marian.utilities.Permissions;
+import com.myra.dev.marian.utilities.Utilities;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
+import org.bson.Document;
+
+@CommandSubscribe(
+        name = "leveling roles remove",
+        aliases = {"leveling role remove"},
+        requires = Permissions.ADMINISTRATOR
+)
+public class LevelingRolesRemove implements Command {
+    @Override
+    public void execute(CommandContext ctx) throws Exception {
+        // Get utilities
+        Utilities utilities = Utilities.getUtils();
+        // Usage
+        if (ctx.getArguments().length != 1) {
+            EmbedBuilder usage = new EmbedBuilder()
+                    .setAuthor("leveling roles remove", null, ctx.getAuthor().getEffectiveAvatarUrl())
+                    .setColor(utilities.gray)
+                    .addField("`" + ctx.getPrefix() + "leveling roles remove <role>`", "\uD83D\uDDD1 │ Delete the linking between a level and a role", false);
+            ctx.getChannel().sendMessage(usage.build()).queue();
+            return;
+        }
+        /**
+         * Remove leveling role
+         */
+        // Get role
+        Role role = utilities.getRole(ctx.getEvent(), ctx.getArguments()[0], "leveling roles remove", "\uD83C\uDFC5");
+        if (role == null) return;
+        // Get database
+        Database db = new Database(ctx.getGuild());
+        // Get role document
+        Document roleDocument = db.getLeveling().getLevelingRoles(role.getId());
+        // Remove role from database
+        db.getLeveling().removeLevelingRole(role.getId());
+        // Get role
+        Role levelingRole = ctx.getGuild().getRoleById(roleDocument.getString("role"));
+        // Update every member
+        for (Member member : ctx.getGuild().getMembers()) {
+            // Leave bots out
+            if (member.getUser().isBot()) continue;
+            // If members level is at least the level of the leveling roles
+            if (db.getMembers().getMember(member).getLevel() >= roleDocument.getInteger("level")) {
+                // Remove leveling role
+                ctx.getGuild().removeRoleFromMember(member, levelingRole).queue();
+            }
+        }
+        // Success message
+        utilities.success(ctx.getChannel(), "leveling roles remove", "\uD83C\uDFC5", "Remove leveling role", role.getAsMention() + " is no longer linked up with level " + String.valueOf(roleDocument.getInteger("level")), ctx.getAuthor().getEffectiveAvatarUrl(), false, null);
+    }
+}

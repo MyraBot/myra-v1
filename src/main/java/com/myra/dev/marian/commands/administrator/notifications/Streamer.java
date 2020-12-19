@@ -1,0 +1,67 @@
+package com.myra.dev.marian.commands.administrator.notifications;
+
+import com.myra.dev.marian.database.managers.NotificationsTwitchManager;
+import com.myra.dev.marian.management.commands.Command;
+import com.myra.dev.marian.management.commands.CommandContext;
+import com.myra.dev.marian.management.commands.CommandSubscribe;
+import com.myra.dev.marian.utilities.APIs.Twitch;
+import com.myra.dev.marian.utilities.Permissions;
+import com.myra.dev.marian.utilities.Utilities;
+import net.dv8tion.jda.api.EmbedBuilder;
+import org.json.JSONObject;
+
+import java.util.List;
+
+@CommandSubscribe(
+        name = "notification twitch",
+        aliases = {"notification live", "notifications twitch", "notifications live"},
+        requires = Permissions.ADMINISTRATOR
+)
+public class Streamer implements Command {
+    @Override
+    public void execute(CommandContext ctx) throws Exception {
+        // Usage
+        if (ctx.getArguments().length != 1) {
+            EmbedBuilder notificationUsage = new EmbedBuilder()
+                    .setAuthor("notification Twitch", null, ctx.getAuthor().getEffectiveAvatarUrl())
+                    .setColor(Utilities.getUtils().gray)
+                    .addField("`" + ctx.getPrefix() + "notification twitch <streamer>`", "\uD83D\uDCE1 │ Add and remove auto notifications for a twitch streamer", false);
+            ctx.getChannel().sendMessage(notificationUsage.build()).queue();
+            return;
+        }
+// Add or remove streamer
+        final JSONObject channelInformation = new Twitch().getChannel(ctx.getArguments()[0]); // Get channel information
+        // Create embed
+        EmbedBuilder streamer = new EmbedBuilder()
+                .setAuthor("streamers", null, ctx.getAuthor().getEffectiveAvatarUrl())
+                .setColor(Utilities.getUtils().blue);
+        // No streamer found
+        if (channelInformation == null) {
+            Utilities.getUtils().error(ctx.getChannel(), "notification twitch", "\uD83D\uDCF9", "No streamer found", "Couldn't found the given streamer", ctx.getAuthor().getEffectiveAvatarUrl());
+            return;
+        }
+
+        final List<String> streamers = NotificationsTwitchManager.getInstance().getStreamers(ctx.getGuild()); // Get current streamers
+        final String channelName = channelInformation.getString("user"); // Get channel name
+
+        // Remove streamer
+        if (streamers.contains(channelName)) {
+            NotificationsTwitchManager.getInstance().removeStreamer(ctx.getGuild(), channelName); // Remove streamer from the database
+            // Complete embed
+            streamer
+                    .addField("\uD83D\uDD15 │ Removed streamer", "Removed **" + channelName + "**", false)
+                    .setThumbnail(channelInformation.getString("profilePicture"));
+        }
+        // Add streamer
+        else {
+            NotificationsTwitchManager.getInstance().addStreamer(ctx.getGuild(), channelName); // Remove streamer from the database
+            // Complete embed
+            streamer
+                    .addField("\uD83D\uDD14 │ Added streamer", "Added **" + channelName + "**", false)
+                    .setThumbnail(channelInformation.getString("profilePicture"));
+        }
+
+
+        ctx.getChannel().sendMessage(streamer.build()).queue(); //sent message
+    }
+}

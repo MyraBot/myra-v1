@@ -1,0 +1,64 @@
+package com.myra.dev.marian.listeners.suggestions;
+
+import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.management.commands.Command;
+import com.myra.dev.marian.management.commands.CommandContext;
+import com.myra.dev.marian.management.commands.CommandSubscribe;
+import com.myra.dev.marian.utilities.Utilities;
+import net.dv8tion.jda.api.EmbedBuilder;
+
+import java.time.Instant;
+
+@CommandSubscribe(
+        command = "suggestions",
+        name = "suggest"
+)
+public class SubmitSuggestion implements Command {
+    @Override
+    public void execute(CommandContext ctx) throws Exception {
+        // Get database
+        Database db = new Database(ctx.getGuild());
+        //check if feature is disabled
+        if (!db.getListenerManager().check("suggestions")) return;
+        // Get utilities
+        Utilities utilities = Utilities.getUtils();
+        // Usage
+        if (ctx.getArguments().length == 0) {
+            EmbedBuilder usage = new EmbedBuilder()
+                    .setAuthor("suggest", null, ctx.getAuthor().getEffectiveAvatarUrl())
+                    .setColor(utilities.gray)
+                    .addField("`" + ctx.getPrefix() + "suggest <suggestion>`", "\uD83D\uDDF3 │ Suggest something", false);
+            ctx.getChannel().sendMessage(usage.build()).queue();
+            return;
+        }
+        /**
+         * Submit suggestion
+         */
+        //if no channel is set
+        if (db.getString("suggestionsChannel").equals("not set")) {
+            utilities.error(ctx.getChannel(), "suggestions", "\uD83D\uDCA1", "No suggestion channel specified", "To set a suggestion channel type in `" + ctx.getPrefix() + "suggestions channel <channel>`", ctx.getGuild().getIconUrl());
+            return;
+        }
+        // Get suggestion
+        String suggestion = "";
+        for (int i = 0; i < ctx.getArguments().length; i++) {
+            suggestion += ctx.getArguments()[i] + " ";
+        }
+        //remove last space
+        suggestion = suggestion.substring(0, suggestion.length() - 1);
+        //send suggestion
+        ctx.getGuild().getTextChannelById(db.getString("suggestionsChannel")).sendMessage(
+                new EmbedBuilder()
+                        .setAuthor("suggestion by " + ctx.getAuthor().getAsTag(), ctx.getEvent().getMessage().getJumpUrl(), ctx.getGuild().getIconUrl())
+                        .setColor(utilities.getMemberRoleColour(ctx.getEvent().getMember()))
+                        .setThumbnail(ctx.getAuthor().getEffectiveAvatarUrl())
+                        .setDescription(suggestion)
+                        .setTimestamp(Instant.now())
+                        .build()
+        ).queue((message) -> {
+            //add reactions
+            message.addReaction("\uD83D\uDC4D").queue();
+            message.addReaction("\uD83D\uDC4E").queue();
+        });
+    }
+}
