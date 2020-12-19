@@ -181,7 +181,6 @@ public class Listeners extends ListenerAdapter {
      * reactions
      */
     private final NotificationsList notificationsList = new NotificationsList();
-    private final ReactionRolesAdd reactionRolesAdd = new ReactionRolesAdd();
     private final ReactionRoles reactionRoles = new ReactionRoles();
     private final InformationServer informationServer = new InformationServer();
     private final TextFormatter textFormatter = new TextFormatter();
@@ -196,10 +195,7 @@ public class Listeners extends ListenerAdapter {
 
             // Administrator
             notificationsList.switchList(event); // List notification
-            reactionRolesAdd.typeSelection(event); // Choose the reaction role type
-            reactionRolesAdd.messageSelection(event); // Choose a message for the reaction role
-
-            reactionRoles.reactionRoleAssign(event); // Reaction roles add listener
+            reactionRoles.reactionRoleAssign(event); // Reaction roles
             // Commands
             informationServer.guildMessageReactionAddEvent(event);
             // Fun
