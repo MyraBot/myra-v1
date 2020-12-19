@@ -75,6 +75,7 @@ public class Listeners extends ListenerAdapter {
     private final static String onlineInfo = "Bot online!";
 
     //JDA Events
+    @Override
     public void onReady(@Nonnull ReadyEvent event) {
         try {
             new MongoDbUpdate().updateDatabase(event); // Update database
@@ -134,6 +135,7 @@ public class Listeners extends ListenerAdapter {
     private final String missingPermsMESSAGE_WRITE = "Cannot perform action due to a lack of Permission. Missing permission: MESSAGE_WRITE";
     private final String missingPermsVIEW_CHANNEL = "Cannot perform action due to a lack of Permission. Missing permission: VIEW_CHANNEL";
     //  Run actions
+    @Override
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
         if (!ready) return;
         try {
@@ -188,6 +190,7 @@ public class Listeners extends ListenerAdapter {
     private final BlackJack blackJack = new BlackJack();
     private final Leaderboard leaderboard = new Leaderboard();
 
+    @Override
     public void onGuildMessageReactionAdd(GuildMessageReactionAddEvent event) {
         try {
             if (!ready) return;
@@ -213,6 +216,7 @@ public class Listeners extends ListenerAdapter {
         }
     }
 
+    @Override
     public void onGuildMessageReactionRemove(GuildMessageReactionRemoveEvent event) {
         try {
             if (!ready) return;
@@ -222,9 +226,7 @@ public class Listeners extends ListenerAdapter {
         }
     }
 
-    /**
-     * guild
-     */
+    @Override
     public void onGuildUpdateName(GuildUpdateNameEvent event) {
         try {
             if (!ready) return;
@@ -234,6 +236,7 @@ public class Listeners extends ListenerAdapter {
         }
     }
 
+    @Override
     public void onTextChannelCreate(TextChannelCreateEvent event) {
         try {
             if (!ready) return;
@@ -244,6 +247,7 @@ public class Listeners extends ListenerAdapter {
         }
     }
 
+    @Override
     public void onGuildMemberJoin(GuildMemberJoinEvent event) {
         try {
             if (!ready) return;
@@ -264,6 +268,7 @@ public class Listeners extends ListenerAdapter {
     //Guild Voice Events
     private final VoiceCall voiceCall = new VoiceCall();
 
+    @Override
     public void onGuildVoiceJoin(GuildVoiceJoinEvent event) {
         try {
             if (!ready) return;
@@ -273,6 +278,7 @@ public class Listeners extends ListenerAdapter {
         }
     }
 
+    @Override
     public void onGuildVoiceMove(GuildVoiceMoveEvent event) {
         try {
             if (!ready) return;
@@ -283,6 +289,7 @@ public class Listeners extends ListenerAdapter {
         }
     }
 
+    @Override
     public void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
         try {
             if (!ready) return;
@@ -292,6 +299,7 @@ public class Listeners extends ListenerAdapter {
         }
     }
 
+    @Override
     public void onGuildVoiceMute(GuildVoiceMuteEvent event) {
         try {
             if (!ready) return;
@@ -301,7 +309,7 @@ public class Listeners extends ListenerAdapter {
         }
     }
 
-
+    @Override
     public void onGuildJoin(GuildJoinEvent event) {
         try {
             if (!ready) return;
@@ -316,6 +324,7 @@ public class Listeners extends ListenerAdapter {
         }
     }
 
+    @Override
     public void onGuildLeave(GuildLeaveEvent event) {
         try {
             if (!ready) return;
