@@ -185,12 +185,9 @@ public class Listeners extends ListenerAdapter {
     /**
      * reactions
      */
-    private final Shutdown shutdown = new Shutdown();
-    private final WelcomeImageFont welcomeImageFont = new WelcomeImageFont();
     private final NotificationsList notificationsList = new NotificationsList();
     private final ReactionRolesAdd reactionRolesAdd = new ReactionRolesAdd();
     private final ReactionRoles reactionRoles = new ReactionRoles();
-    private final Help help = new Help();
     private final InformationServer informationServer = new InformationServer();
     private final TextFormatter textFormatter = new TextFormatter();
     private final Background background = new Background();
@@ -202,18 +199,12 @@ public class Listeners extends ListenerAdapter {
             if (!ready) return;
             if (event.getUser().isBot()) return; // Don't react to bots
 
-            // Marian
-            shutdown.exitProgram(event); // Shutdown
             // Administrator
-            welcomeImageFont.chooseFont(event); // Change welcome image font
             notificationsList.switchList(event); // List notification
             reactionRolesAdd.typeSelection(event); // Choose the reaction role type
             reactionRolesAdd.messageSelection(event); // Choose a message for the reaction role
 
             reactionRoles.reactionRoleAssign(event); // Reaction roles add listener
-            // Help
-            //commands.guildMessageReactionAddEvent(event);
-            help.guildMessageReactionAddEvent(event);
             // Commands
             informationServer.guildMessageReactionAddEvent(event);
             // Fun

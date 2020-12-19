@@ -1,22 +1,28 @@
 package com.myra.dev.marian.commands.help;
 
-import com.myra.dev.marian.Bot;
 import com.myra.dev.marian.database.allMethods.Database;
 import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
 import com.myra.dev.marian.utilities.CommandEmbeds;
 import com.myra.dev.marian.utilities.Config;
-import com.myra.dev.marian.utilities.MessageReaction;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
+
+import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 @CommandSubscribe(
         name = "help",
         aliases = {"help me"}
 )
 public class Help implements Command {
+    private final String[] emojis = {
+            "\u2709\uFE0F", // ✉️
+            "\u26A0\uFE0F" // ⚠️
+    };
+
     @Override
     public void execute(CommandContext ctx) throws Exception {
         //check for no arguments
@@ -34,33 +40,34 @@ public class Help implements Command {
                 .addField("**\u26A0\uFE0F │ support**", utilities.hyperlink("Report ", "https://discord.gg/nG4uKuB") + " bugs and get " + utilities.hyperlink("help ", "https://discord.gg/nG4uKuB"), true);
         ctx.getChannel().sendMessage(help.build()).queue(message -> {
             // Add reactions
-            message.addReaction("\u2709\uFE0F").queue();
-            message.addReaction("\u26A0\uFE0F").queue();
+            message.addReaction(emojis[0]).queue(); // ✉️
+            message.addReaction(emojis[1]).queue(); // ⚠️
 
-            MessageReaction.add(ctx.getGuild(), "help", message, ctx.getAuthor(), true, "\u2709\uFE0F", "\u26A0\uFE0F");
+            // Event waiter
+            ctx.waiter().waitForEvent(
+                    GuildMessageReactionAddEvent.class, // Event to wait for
+                    e -> // Condition
+                            !e.getUser().isBot()
+                                    && e.getUser() == ctx.getAuthor()
+                                    && e.getMessageId().equals(message.getId())
+                                    && Arrays.stream(emojis).anyMatch(e.getReactionEmote().getEmoji()::equals),
+                    e -> {
+                        final CommandEmbeds embed = new CommandEmbeds(e.getGuild(), e.getJDA(), e.getUser(), new Database(e.getGuild()).getString("prefix")); // Get embeds
+                        final String reaction = e.getReactionEmote().getEmoji(); // Get reacted emoji
+                        // Invite bot
+                        if (reaction.equals(emojis[0])) { // ✉️
+                            message.editMessage(embed.inviteJda().build()).queue(); // Edit message
+                        }
+                        // Support server
+                        if (reaction.equals(emojis[1])) { // ⚠️
+                            message.editMessage(embed.supportServer().build()).queue(); // Edit message
+                        }
+                        message.clearReactions().queue(); // Clear reactions
+                    },
+                    30L, TimeUnit.SECONDS, // Timeout
+                    () -> message.clearReactions().queue()
+            );
         });
-    }
-
-    //reactions
-    public void guildMessageReactionAddEvent(GuildMessageReactionAddEvent event) throws Exception {
-        // If reaction was added on the wrong message return
-        if (!MessageReaction.check(event, "help", true)) return;
-
-        CommandEmbeds embed = new CommandEmbeds(event.getGuild(), event.getJDA(), event.getUser(), new Database(event.getGuild()).getString("prefix"));
-        //invite bot
-        if (event.getReactionEmote().getEmoji().equals("\u2709\uFE0F") && !event.getMember().getUser().isBot()) {
-            event.retrieveMessage().queue(message -> {
-                message.editMessage(embed.inviteJda().build()).queue(); // Edit message
-                message.clearReactions().queue(); // Clear reactions
-            });
-        }
-        //support server
-        if (event.getReactionEmote().getEmoji().equals("\u26A0\uFE0F") && !event.getMember().getUser().isBot()) {
-            event.retrieveMessage().queue(message -> {
-                message.editMessage(embed.supportServer().build()).queue(); // Edit message
-                message.clearReactions().queue(); // Clear reactions
-            });
-        }
     }
 }
 
