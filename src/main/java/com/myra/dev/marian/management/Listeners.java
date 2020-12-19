@@ -9,7 +9,6 @@ import com.myra.dev.marian.commands.economy.blackjack.BlackJack;
 import com.myra.dev.marian.commands.fun.TextFormatter;
 import com.myra.dev.marian.commands.general.Reminder;
 import com.myra.dev.marian.commands.general.information.InformationServer;
-import com.myra.dev.marian.commands.help.Help;
 import com.myra.dev.marian.commands.help.InviteThanks;
 import com.myra.dev.marian.commands.leveling.Background;
 import com.myra.dev.marian.commands.moderation.ban.Tempban;
@@ -23,16 +22,13 @@ import com.myra.dev.marian.listeners.autorole.AutoroleAssign;
 import com.myra.dev.marian.listeners.leveling.VoiceCall;
 import com.myra.dev.marian.listeners.notifications.TwitchNotification;
 import com.myra.dev.marian.listeners.notifications.YouTubeNotification;
-import com.myra.dev.marian.listeners.welcome.WelcomeImage.WelcomeImageFont;
 import com.myra.dev.marian.listeners.welcome.WelcomeListener;
 import com.myra.dev.marian.management.commands.CommandService;
 import com.myra.dev.marian.management.listeners.Listener;
 import com.myra.dev.marian.management.listeners.ListenerService;
 import com.myra.dev.marian.marian.Roles;
 import com.myra.dev.marian.marian.ServerTracking;
-import com.myra.dev.marian.marian.Shutdown;
 import com.myra.dev.marian.utilities.APIs.Twitch;
-import com.myra.dev.marian.utilities.ConsoleColours;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -75,11 +71,8 @@ public class Listeners extends ListenerAdapter {
 
 
     private final static Logger LOGGER = LoggerFactory.getLogger(Listener.class);
-    // Errors
-    private final String missingPermsMESSAGE_WRITE = "Cannot perform action due to a lack of Permission. Missing permission: MESSAGE_WRITE";
-    private final String missingPermsVIEW_CHANNEL = "Cannot perform action due to a lack of Permission. Missing permission: VIEW_CHANNEL";
 
-    private final static String onlineInfo = ConsoleColours.GREEN + "Bot online" + ConsoleColours.RESET;
+    private final static String onlineInfo = "Bot online!";
 
     //JDA Events
     public void onReady(@Nonnull ReadyEvent event) {
@@ -137,7 +130,9 @@ public class Listeners extends ListenerAdapter {
             });
         }, start, 60, TimeUnit.MINUTES);
     }
-
+    // Errors
+    private final String missingPermsMESSAGE_WRITE = "Cannot perform action due to a lack of Permission. Missing permission: MESSAGE_WRITE";
+    private final String missingPermsVIEW_CHANNEL = "Cannot perform action due to a lack of Permission. Missing permission: VIEW_CHANNEL";
     //  Run actions
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
         if (!ready) return;
