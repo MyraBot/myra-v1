@@ -80,6 +80,7 @@ public class Listeners extends ListenerAdapter {
     private final String missingPermsVIEW_CHANNEL = "Cannot perform action due to a lack of Permission. Missing permission: VIEW_CHANNEL";
 
     private final static String onlineInfo = ConsoleColours.GREEN + "Bot online" + ConsoleColours.RESET;
+
     //JDA Events
     public void onReady(@Nonnull ReadyEvent event) {
         try {
@@ -139,6 +140,7 @@ public class Listeners extends ListenerAdapter {
 
     //  Run actions
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
+        if (!ready) return;
         try {
             if (event.getMessage().getFlags().contains(Message.MessageFlag.IS_CROSSPOST))
                 return; // Message is a server announcement
@@ -188,7 +190,6 @@ public class Listeners extends ListenerAdapter {
     private final NotificationsList notificationsList = new NotificationsList();
     private final ReactionRolesAdd reactionRolesAdd = new ReactionRolesAdd();
     private final ReactionRoles reactionRoles = new ReactionRoles();
-    //private final Commands commands = new Commands(waiter);
     private final Help help = new Help();
     private final InformationServer informationServer = new InformationServer();
     private final TextFormatter textFormatter = new TextFormatter();
@@ -198,6 +199,7 @@ public class Listeners extends ListenerAdapter {
 
     public void onGuildMessageReactionAdd(GuildMessageReactionAddEvent event) {
         try {
+            if (!ready) return;
             if (event.getUser().isBot()) return; // Don't react to bots
 
             // Marian
@@ -231,6 +233,7 @@ public class Listeners extends ListenerAdapter {
 
     public void onGuildMessageReactionRemove(GuildMessageReactionRemoveEvent event) {
         try {
+            if (!ready) return;
             reactionRoles.reactionRoleRemove(event); // Reaction roles remove listener
         } catch (Exception e) {
             e.printStackTrace();
@@ -242,6 +245,7 @@ public class Listeners extends ListenerAdapter {
      */
     public void onGuildUpdateName(GuildUpdateNameEvent event) {
         try {
+            if (!ready) return;
             new MongoDbUpdate().guildNameUpdated(event);
         } catch (Exception e) {
             e.printStackTrace();
@@ -250,6 +254,7 @@ public class Listeners extends ListenerAdapter {
 
     public void onTextChannelCreate(TextChannelCreateEvent event) {
         try {
+            if (!ready) return;
             // Set permissions for mute role
             new MutePermissions().textChannelCreateEvent(event);
         } catch (Exception e) {
@@ -259,6 +264,7 @@ public class Listeners extends ListenerAdapter {
 
     public void onGuildMemberJoin(GuildMemberJoinEvent event) {
         try {
+            if (!ready) return;
             // Welcome
             new WelcomeListener().welcome(event);
 
@@ -272,20 +278,14 @@ public class Listeners extends ListenerAdapter {
         }
     }
 
-    // Voice channel //
+
+    //Guild Voice Events
     private final VoiceCall voiceCall = new VoiceCall();
 
     public void onGuildVoiceJoin(GuildVoiceJoinEvent event) {
         try {
+            if (!ready) return;
             voiceCall.updateXpGain(event.getChannelJoined()); // Start xp gian
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
-        try {
-            voiceCall.stopXpGain(event.getMember()); // Stop xp gain
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -293,6 +293,7 @@ public class Listeners extends ListenerAdapter {
 
     public void onGuildVoiceMove(GuildVoiceMoveEvent event) {
         try {
+            if (!ready) return;
             voiceCall.updateXpGain(event.getChannelLeft()); // Update xp for users, who are still in old voice call
             voiceCall.updateXpGain(event.getChannelJoined()); // Update xp for users in new voice call
         } catch (Exception e) {
@@ -300,8 +301,18 @@ public class Listeners extends ListenerAdapter {
         }
     }
 
+    public void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
+        try {
+            if (!ready) return;
+            voiceCall.stopXpGain(event.getMember()); // Stop xp gain
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void onGuildVoiceMute(GuildVoiceMuteEvent event) {
         try {
+            if (!ready) return;
             voiceCall.updateXpGain(event); // Update xp gain
         } catch (Exception e) {
             e.printStackTrace();
@@ -311,6 +322,7 @@ public class Listeners extends ListenerAdapter {
 
     public void onGuildJoin(GuildJoinEvent event) {
         try {
+            if (!ready) return;
             // Add guild document to database
             new MongoDbUpdate().guildJoinEvent(event);
             // Server tracking message
@@ -324,6 +336,7 @@ public class Listeners extends ListenerAdapter {
 
     public void onGuildLeave(GuildLeaveEvent event) {
         try {
+            if (!ready) return;
             //delete guild document
             new MongoDbUpdate().guildLeaveEvent(event);
         } catch (Exception e) {
