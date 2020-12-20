@@ -1,11 +1,10 @@
 package com.myra.dev.marian.utilities;
 
-import javax.net.ssl.HttpsURLConnection;
+import okhttp3.*;
+
 import java.awt.*;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.lang.reflect.Array;
-import java.net.URL;
 import java.util.List;
 import java.util.*;
 
@@ -13,6 +12,7 @@ import java.util.*;
  * Class used to execute Discord Webhooks with low effort
  */
 public class Webhook {
+    private final OkHttpClient client = new OkHttpClient();
 
     private final String url;
     private String content;
@@ -59,6 +59,8 @@ public class Webhook {
         if (this.content == null && this.embeds.isEmpty()) {
             throw new IllegalArgumentException("Set content or add at least one EmbedObject");
         }
+
+        this.content = content.replace("\n", "\\n"); // In JSON \n is \\n
 
         JSONObject json = new JSONObject();
 
@@ -141,20 +143,15 @@ public class Webhook {
             json.put("embeds", embedObjects.toArray());
         }
 
-        URL url = new URL(this.url);
-        HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
-        connection.addRequestProperty("Content-Type", "application/json");
-        connection.addRequestProperty("User-Agent", "Java-DiscordWebhook-BY-Gelox_");
-        connection.setDoOutput(true);
-        connection.setRequestMethod("POST");
+        RequestBody body = RequestBody.create(
+                MediaType.parse("application/json; charset=utf-8"), json.toString());
 
-        OutputStream stream = connection.getOutputStream();
-        stream.write(json.toString().getBytes());
-        stream.flush();
-        stream.close();
+        Request request = new Request.Builder()
+                .url(url)
+                .post(body)
+                .build();
 
-        connection.getInputStream().close(); //I'm not sure why but it doesn't work without getting the InputStream
-        connection.disconnect();
+        client.newCall(request);
     }
 
     public static class EmbedObject {
@@ -389,5 +386,4 @@ public class Webhook {
             return "\"" + string + "\"";
         }
     }
-
 }
