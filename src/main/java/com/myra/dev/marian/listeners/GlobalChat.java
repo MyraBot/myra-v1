@@ -16,8 +16,7 @@ import java.io.IOException;
 import static com.mongodb.client.model.Filters.eq;
 
 @ListenerSubscribe(
-        name = "global chat",
-        premium = true
+        name = "global chat"
 )
 public class GlobalChat implements Listener {
     @Override
@@ -47,23 +46,16 @@ public class GlobalChat implements Listener {
                             // Message is a reply
                             if (ctx.getMessage().getReferencedMessage() != null) {
                                 final Message reply = ctx.getMessage().getReferencedMessage(); // Get message to reply
-
-                                final String replyingUser = reply.getAuthor().getName();
-                                if (!reply.getMentionedUsers().isEmpty())
-                                    reply.getMentionedUsers().get(0).getAsMention().toString();
-
-                                message.setContent("> " + reply.getContentRaw() + "\\n " + replyingUser + " "); // In JSON \n is \\n
+                                message.setContent("> " + reply.getContentRaw() + "\\n "); // In JSON \n is \\n
                             }
                                 message.appendContent(ctx.getMessage().getContentRaw());
                             // Message has an attachments
                             if (!ctx.getMessage().getAttachments().isEmpty()) {
-                                Webhook.EmbedObject attachment = new Webhook.EmbedObject()
-                                        .setImage(ctx.getMessage().getAttachments().get(0).getUrl());
-                                message.addEmbed(attachment);
+                                message.appendContent("\\n"+ ctx.getMessage().getAttachments().get(0).getUrl());
                             }
                             message.execute(); // Send message
                         } catch (IOException e) {
-                            e.printStackTrace();
+                           e.printStackTrace();
                         }
                     }
                 }));
