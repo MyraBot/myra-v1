@@ -17,7 +17,6 @@ public class ErrorCatch {
         }
         // Missing permissions: MESSAGE_WRITE
         if (error.startsWith(missingPermsMESSAGE_WRITE)) {
-            return;
         }
         // Missing permissions: VIEW_CHANNEL
         else if (error.equals(missingPermsVIEW_CHANNEL)) {
