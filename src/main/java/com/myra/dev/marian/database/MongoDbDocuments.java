@@ -97,6 +97,7 @@ public class MongoDbDocuments {
                 .append("notifications", notificationsDocument)
                 .append("suggestionsChannel", "not set")
                 .append("logChannel", "not set")
+                .append("globalChat", null)
                 .append("reactionRoles", new ArrayList<>())
                 .append("autoRole", "not set")
                 .append("muteRole", "not set")

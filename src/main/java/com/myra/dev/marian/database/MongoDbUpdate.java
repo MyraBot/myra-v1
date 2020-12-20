@@ -17,7 +17,7 @@ public class MongoDbUpdate {
 
     //update Database
     public void update(ReadyEvent event) throws Exception {
-/*        List<String> guildIds = new ArrayList<>();
+ /*     List<String> guildIds = new ArrayList<>();
         for (Guild guild : event.getJDA().getGuilds()) {
             guildIds.add(guild.getId());
         }
@@ -25,7 +25,7 @@ public class MongoDbUpdate {
         // Guild update
         for (Document doc : mongoDb.getCollection("guilds").find()) {
             // Make backup
-            mongoDb.getCollection("backup").insertOne(doc);
+            //mongoDb.getCollection("backup").insertOne(doc);
 
             // Get variables
             final String guildId = doc.getString("guildId");
@@ -102,15 +102,16 @@ public class MongoDbUpdate {
 
             //create Document
             Document guildDoc = new Document("guildId", guildId)
-                    .append("guildName", guildName)
-                    .append("prefix", prefix)
+                    .append("guildName", doc.getString("guildName"))
+                    .append("prefix", doc.getString("prefix"))
                     .append("premium", doc.getBoolean("premium"))
-                    .append("economy", economyDocument)
-                    .append("leveling", levelingDocument)
-                    .append("notifications", notificationDocument)
+                    .append("economy", doc.get("economy", Document.class))
+                    .append("leveling", doc.get("leveling", Document.class))
+                    .append("notifications", doc.get("notifications", Document.class))
                     .append("suggestionsChannel", suggestionsChannel)
                     .append("reactionRoles", doc.getList("reactionRoles", Document.class))
                     .append("logChannel", logChannel)
+                    .append("globalChat", doc.get("globalChat"))
                     .append("autoRole", autoRole)
                     .append("muteRole", muteRole)
                     .append("welcome", welcome)
@@ -122,7 +123,8 @@ public class MongoDbUpdate {
                     mongoDb.getCollection("guilds").find(eq("guildId", guildDoc.getString("guildId"))).first(),
                     guildDoc
             );
-        }*/
+        }
+  */
 /*        // Member update
         final MongoCursor<Document> iterator = mongoDb.getCollection("usersBackup").find().iterator();
 

@@ -2,9 +2,7 @@ package com.myra.dev.marian.management;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.myra.dev.marian.commands.Leaderboard;
-import com.myra.dev.marian.commands.administrator.Prefix;
-import com.myra.dev.marian.commands.administrator.Say;
-import com.myra.dev.marian.commands.administrator.Toggle;
+import com.myra.dev.marian.commands.administrator.*;
 import com.myra.dev.marian.commands.administrator.notifications.*;
 import com.myra.dev.marian.commands.administrator.reactionRoles.ReactionRolesAdd;
 import com.myra.dev.marian.commands.economy.*;
@@ -45,11 +43,11 @@ import com.myra.dev.marian.commands.moderation.mute.Mute;
 import com.myra.dev.marian.commands.moderation.mute.MuteRole;
 import com.myra.dev.marian.commands.moderation.mute.Tempmute;
 import com.myra.dev.marian.commands.moderation.mute.Unmute;
+import com.myra.dev.marian.listeners.GlobalChat;
 import com.myra.dev.marian.listeners.Someone;
 import com.myra.dev.marian.listeners.autorole.AutoRoleSet;
 import com.myra.dev.marian.listeners.leveling.Leveling;
 import com.myra.dev.marian.listeners.leveling.LevelingListener;
-import com.myra.dev.marian.commands.administrator.LogChannel;
 import com.myra.dev.marian.listeners.suggestions.SubmitSuggestion;
 import com.myra.dev.marian.listeners.suggestions.SuggestionsChannel;
 import com.myra.dev.marian.listeners.suggestions.SuggestionsHelp;
@@ -107,6 +105,7 @@ public class Manager {
                 new Prefix(),
                 new Say(),
                 new Toggle(),
+                new GlobalChatChannel(),
 
                 new ReactionRolesAdd(),
                 //
@@ -229,9 +228,11 @@ public class Manager {
 
         // Register listeners
         LISTENER_SERVICE.register(
-                new LevelingListener(),
+                // Administrator
+                new Someone(),
+                new GlobalChat(),
 
-                new Someone()
+                new LevelingListener()
         );
     }
 }
