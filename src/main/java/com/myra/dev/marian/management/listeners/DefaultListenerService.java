@@ -1,10 +1,11 @@
 package com.myra.dev.marian.management.listeners;
 
-import com.myra.dev.marian.Bot;
+import com.myra.dev.marian.database.allMethods.Database;
 import com.myra.dev.marian.management.commands.CommandService;
 import com.myra.dev.marian.utilities.Config;
 import com.myra.dev.marian.utilities.Permissions;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
@@ -80,8 +81,12 @@ public class DefaultListenerService implements ListenerService {
         for (Map.Entry<Listener, ListenerSubscribe> entry : this.listeners.entrySet()) {
             //if listener doesn't need an executor
             if (!entry.getValue().needsExecutor()) {
+                if (entry.getValue().premium()) {
+                    if (!isPremium(event.getGuild())) continue;
+                }
                 entry.getKey().execute(new ListenerContext(event, splitMessage));
             }
+
             //check for executor
             else {
                 //add executors
@@ -96,10 +101,10 @@ public class DefaultListenerService implements ListenerService {
                 }
                 //check for executors
                 if (executors.stream().anyMatch(event.getMessage().getContentRaw().toLowerCase()::contains)) {
-                    // Check for permissions
-                    if (!hasPermissions(event.getMember(), entry.getValue().requires())) return;
-                    //run listener
-                    entry.getKey().execute(new ListenerContext(event, splitMessage));
+                    if (!hasPermissions(event.getMember(), entry.getValue().requires()))
+                        return; // Check for permissions
+
+                    entry.getKey().execute(new ListenerContext(event, splitMessage)); //run listener
                 }
             }
         }
@@ -122,6 +127,10 @@ public class DefaultListenerService implements ListenerService {
             }
         }
         return false;
+    }
+
+    private boolean isPremium(Guild guild) {
+        return new Database(guild).getBoolean("premium");
     }
 
     /**
