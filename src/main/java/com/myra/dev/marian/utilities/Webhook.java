@@ -151,7 +151,8 @@ public class Webhook {
                 .post(body)
                 .build();
 
-        client.newCall(request);
+        final Call call = client.newCall(request); // Create call
+        call.execute(); // Execute POST request
     }
 
     public static class EmbedObject {
