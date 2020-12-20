@@ -7,6 +7,6 @@ public class Config {
     public final static String marianServer = "642809436515074053";
     public final static String myraServer = "774269364244971571";
 
-    public final static Long START_UP = System.currentTimeMillis();
+    public static Long startUp;
     public final static Integer ECONOMY_MAX = 1000000000;
 }

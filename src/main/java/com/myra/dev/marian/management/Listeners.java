@@ -4,7 +4,6 @@ import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.myra.dev.marian.Bot;
 import com.myra.dev.marian.commands.Leaderboard;
 import com.myra.dev.marian.commands.administrator.notifications.NotificationsList;
-import com.myra.dev.marian.commands.administrator.reactionRoles.ReactionRolesAdd;
 import com.myra.dev.marian.commands.economy.blackjack.BlackJack;
 import com.myra.dev.marian.commands.fun.TextFormatter;
 import com.myra.dev.marian.commands.general.Reminder;
@@ -29,8 +28,8 @@ import com.myra.dev.marian.management.listeners.ListenerService;
 import com.myra.dev.marian.marian.Roles;
 import com.myra.dev.marian.marian.ServerTracking;
 import com.myra.dev.marian.utilities.APIs.Twitch;
+import com.myra.dev.marian.utilities.Config;
 import com.myra.dev.marian.utilities.Utilities;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Icon;
 import net.dv8tion.jda.api.entities.Message;
@@ -62,6 +61,18 @@ public class Listeners extends ListenerAdapter {
     private final ListenerService listenerService = Manager.LISTENER_SERVICE;
     private final EventWaiter waiter;
     public static boolean ready = false;
+    private final static Logger LOGGER = LoggerFactory.getLogger(Listener.class);
+    private final static String onlineInfo = "Bot online!";
+    // Reactions
+    private final NotificationsList notificationsList = new NotificationsList();
+    private final ReactionRoles reactionRoles = new ReactionRoles();
+    private final InformationServer informationServer = new InformationServer();
+    private final TextFormatter textFormatter = new TextFormatter();
+    private final Background background = new Background();
+    private final BlackJack blackJack = new BlackJack();
+    private final Leaderboard leaderboard = new Leaderboard();
+    //Guild Voice Events
+    private final VoiceCall voiceCall = new VoiceCall();
 
     public Listeners(final EventWaiter waiter) {
         this.waiter = waiter;
@@ -69,13 +80,32 @@ public class Listeners extends ListenerAdapter {
         new Manager().commandRegistry(waiter); // Load all commands
     }
 
+    private void online() {
+        final int start = 60 - LocalDateTime.now().getMinute() % 60; // Get time to start changing the profile picutre
+        // Set her status to online
+        Bot.shardManager.getShards().forEach(bot -> {
+            bot.getPresence().setActivity(Activity.listening("~help │ " + bot.getGuilds().size() + " servers")); // Change status
+        });
+        // Get a random one
+        Utilities.TIMER.scheduleAtFixedRate(() -> {
+            final InputStream profilePicture = null; // Create variable for new profile picture
+            while (profilePicture == null) { // If profile picture is still null
+                this.getClass().getClassLoader().getResourceAsStream("profilePicture" + new Random().nextInt(9) + ".png");
+            }
+            // Change profile
+            Bot.shardManager.getShards().forEach(bot -> {
+                try {
+                    bot.getPresence().setActivity(Activity.listening("~help │ " + bot.getGuilds().size() + " servers")); // Change status
+                    bot.getSelfUser().getManager().setAvatar(Icon.from(profilePicture)).queue(); // Change profile picture
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        }, start, 60, TimeUnit.MINUTES);
+    }
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(Listener.class);
-
-    private final static String onlineInfo = "Bot online!";
 
     //JDA Events
-    @Override
     public void onReady(@Nonnull ReadyEvent event) {
         try {
             new MongoDbUpdate().updateDatabase(event); // Update database
@@ -103,40 +133,16 @@ public class Listeners extends ListenerAdapter {
 
             online(); // Change profile picture and activity
             LOGGER.info(onlineInfo);
+            Config.startUp = System.currentTimeMillis();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void online() {
-        final int start = 60 - LocalDateTime.now().getMinute() % 60; // Get time to start changing the profile picutre
-        // Set her status to online
-        Bot.shardManager.getShards().forEach(bot -> {
-            bot.getPresence().setActivity(Activity.listening("~help │ " + bot.getGuilds().size() + " servers")); // Change status
-        });
-        // Get a random one
-        Utilities.TIMER.scheduleAtFixedRate(() -> {
-            final InputStream profilePicture = null; // Create variable for new profile picture
-            while (profilePicture == null) { // If profile picture is still null
-                this.getClass().getClassLoader().getResourceAsStream("profilePicture" + new Random().nextInt(9) + ".png");
-            }
-            // Change profile
-            Bot.shardManager.getShards().forEach(bot -> {
-                try {
-                    bot.getPresence().setActivity(Activity.listening("~help │ " + bot.getGuilds().size() + " servers")); // Change status
-                    bot.getSelfUser().getManager().setAvatar(Icon.from(profilePicture)).queue(); // Change profile picture
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            });
-        }, start, 60, TimeUnit.MINUTES);
-    }
-    // Errors
-    private final String missingPermsMESSAGE_WRITE = "Cannot perform action due to a lack of Permission. Missing permission: MESSAGE_WRITE";
-    private final String missingPermsVIEW_CHANNEL = "Cannot perform action due to a lack of Permission. Missing permission: VIEW_CHANNEL";
-    //  Run actions
-    @Override
-    public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
+
+    //Message Events
+    //Guild (TextChannel) Message Events
+    public void onGuildMessageReceived(@Nonnull GuildMessageReceivedEvent event) {
         if (!ready) return;
         try {
             if (event.getMessage().getFlags().contains(Message.MessageFlag.IS_CROSSPOST))
@@ -147,51 +153,11 @@ public class Listeners extends ListenerAdapter {
             commandService.processCommandExecution(event, waiter);
             listenerService.processCommandExecution(event);
         } catch (Exception exception) {
-            final String error = exception.getMessage(); // Get error
-            if (exception.getMessage() == null) {
-                exception.printStackTrace();
-                return;
-            }
-            // Missing permissions: MESSAGE_WRITE
-            if (error.startsWith(missingPermsMESSAGE_WRITE)) {
-                return;
-            }
-            // Missing permissions: VIEW_CHANNEL
-            else if (error.equals(missingPermsVIEW_CHANNEL)) {
-                error(event, "I'm not able to see the channel."); // Send error}
-            }
-            // Other error
-            else {
-                error(event, "An error accrued, please contact " + Utilities.getUtils().hyperlink("my developer", Utilities.getUtils().marianUrl()));
-                exception.printStackTrace();
-            }
+            new ErrorCatch().catchError(exception, event);
         }
     }
 
-    private void error(GuildMessageReceivedEvent event, String error) {
-        final Utilities utils = Utilities.getUtils(); // Get utilities
-
-        event.getChannel().sendMessage(new EmbedBuilder()
-                .setAuthor("error", "https://discord.gg/nG4uKuB", event.getJDA().getSelfUser().getEffectiveAvatarUrl())
-                .setColor(utils.red)
-                .setDescription(error + "\n" + utils.hyperlink("If you need more help please join the support server", "https://discord.gg/nG4uKuB"))
-                .build()
-        ).queue();
-    }
-
-    /**
-     * reactions
-     */
-    private final NotificationsList notificationsList = new NotificationsList();
-    private final ReactionRoles reactionRoles = new ReactionRoles();
-    private final InformationServer informationServer = new InformationServer();
-    private final TextFormatter textFormatter = new TextFormatter();
-    private final Background background = new Background();
-    private final BlackJack blackJack = new BlackJack();
-    private final Leaderboard leaderboard = new Leaderboard();
-
-    @Override
-    public void onGuildMessageReactionAdd(GuildMessageReactionAddEvent event) {
+    public void onGuildMessageReactionAdd(@Nonnull GuildMessageReactionAddEvent event) {
         try {
             if (!ready) return;
             if (event.getUser().isBot()) return; // Don't react to bots
@@ -216,8 +182,7 @@ public class Listeners extends ListenerAdapter {
         }
     }
 
-    @Override
-    public void onGuildMessageReactionRemove(GuildMessageReactionRemoveEvent event) {
+    public void onGuildMessageReactionRemove(@Nonnull GuildMessageReactionRemoveEvent event) {
         try {
             if (!ready) return;
             reactionRoles.reactionRoleRemove(event); // Reaction roles remove listener
@@ -226,18 +191,9 @@ public class Listeners extends ListenerAdapter {
         }
     }
 
-    @Override
-    public void onGuildUpdateName(GuildUpdateNameEvent event) {
-        try {
-            if (!ready) return;
-            new MongoDbUpdate().guildNameUpdated(event);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
-    @Override
-    public void onTextChannelCreate(TextChannelCreateEvent event) {
+    //TextChannel Events
+    public void onTextChannelCreate(@Nonnull TextChannelCreateEvent event) {
         try {
             if (!ready) return;
             // Set permissions for mute role
@@ -247,8 +203,46 @@ public class Listeners extends ListenerAdapter {
         }
     }
 
-    @Override
-    public void onGuildMemberJoin(GuildMemberJoinEvent event) {
+
+    //Guild Events
+    public void onGuildJoin(@Nonnull GuildJoinEvent event) {
+        try {
+            if (!ready) return;
+            // Add guild document to database
+            new MongoDbUpdate().guildJoinEvent(event);
+            // Server tracking message
+            new ServerTracking().guildJoinEvent(event);
+            // Thank message to server owner
+            new InviteThanks().guildJoinEvent(event);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void onGuildLeave(@Nonnull GuildLeaveEvent event) {
+        try {
+            if (!ready) return;
+            //delete guild document
+            new MongoDbUpdate().guildLeaveEvent(event);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    //Guild Update Events
+    public void onGuildUpdateName(@Nonnull GuildUpdateNameEvent event) {
+        try {
+            if (!ready) return;
+            new MongoDbUpdate().guildNameUpdated(event);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    //Guild Member Events
+    public void onGuildMemberJoin(@Nonnull GuildMemberJoinEvent event) {
         try {
             if (!ready) return;
             // Welcome
@@ -266,10 +260,7 @@ public class Listeners extends ListenerAdapter {
 
 
     //Guild Voice Events
-    private final VoiceCall voiceCall = new VoiceCall();
-
-    @Override
-    public void onGuildVoiceJoin(GuildVoiceJoinEvent event) {
+    public void onGuildVoiceJoin(@Nonnull GuildVoiceJoinEvent event) {
         try {
             if (!ready) return;
             voiceCall.updateXpGain(event.getChannelJoined()); // Start xp gian
@@ -278,8 +269,7 @@ public class Listeners extends ListenerAdapter {
         }
     }
 
-    @Override
-    public void onGuildVoiceMove(GuildVoiceMoveEvent event) {
+    public void onGuildVoiceMove(@Nonnull GuildVoiceMoveEvent event) {
         try {
             if (!ready) return;
             voiceCall.updateXpGain(event.getChannelLeft()); // Update xp for users, who are still in old voice call
@@ -289,8 +279,7 @@ public class Listeners extends ListenerAdapter {
         }
     }
 
-    @Override
-    public void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
+    public void onGuildVoiceLeave(@Nonnull GuildVoiceLeaveEvent event) {
         try {
             if (!ready) return;
             voiceCall.stopXpGain(event.getMember()); // Stop xp gain
@@ -299,37 +288,10 @@ public class Listeners extends ListenerAdapter {
         }
     }
 
-    @Override
-    public void onGuildVoiceMute(GuildVoiceMuteEvent event) {
+    public void onGuildVoiceMute(@Nonnull GuildVoiceMuteEvent event) {
         try {
             if (!ready) return;
             voiceCall.updateXpGain(event); // Update xp gain
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void onGuildJoin(GuildJoinEvent event) {
-        try {
-            if (!ready) return;
-            // Add guild document to database
-            new MongoDbUpdate().guildJoinEvent(event);
-            // Server tracking message
-            new ServerTracking().guildJoinEvent(event);
-            // Thank message to server owner
-            new InviteThanks().guildJoinEvent(event);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void onGuildLeave(GuildLeaveEvent event) {
-        try {
-            if (!ready) return;
-            //delete guild document
-            new MongoDbUpdate().guildLeaveEvent(event);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -18,7 +18,7 @@ public class Dashboard implements Command {
     @Override
     public void execute(CommandContext ctx) throws Exception {
         final int memberCount = ctx.getEvent().getJDA().getUsers().size();
-        final long uptime = System.currentTimeMillis() - Config.START_UP;
+        final long uptime = System.currentTimeMillis() - Config.startUp;
         Resources resources = new Resources();
 
         EmbedBuilder dashboard = new EmbedBuilder()
