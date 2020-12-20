@@ -67,7 +67,6 @@ public class Listeners extends ListenerAdapter {
     private final NotificationsList notificationsList = new NotificationsList();
     private final ReactionRoles reactionRoles = new ReactionRoles();
     private final InformationServer informationServer = new InformationServer();
-    private final TextFormatter textFormatter = new TextFormatter();
     private final Background background = new Background();
     private final BlackJack blackJack = new BlackJack();
     private final Leaderboard leaderboard = new Leaderboard();
@@ -167,8 +166,6 @@ public class Listeners extends ListenerAdapter {
             reactionRoles.reactionRoleAssign(event); // Reaction roles
             // Commands
             informationServer.guildMessageReactionAddEvent(event);
-            // Fun
-            textFormatter.guildMessageReactionAddEvent(event); // Text formatter
             // Leveling
             leaderboard.switchLeaderboard(event); // Switch what leaderboard shows
             // Economy

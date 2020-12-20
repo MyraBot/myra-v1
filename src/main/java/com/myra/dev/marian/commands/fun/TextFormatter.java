@@ -4,13 +4,10 @@ package com.myra.dev.marian.commands.fun;
 import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
-import com.myra.dev.marian.utilities.MessageReaction;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 
-import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 @CommandSubscribe(
@@ -19,11 +16,7 @@ import java.util.concurrent.TimeUnit;
         aliases = {"font"}
 )
 public class TextFormatter implements Command {
-    private static HashMap<String, String> messages = new HashMap<>();
 
-    /**
-     * fonts
-     */
     //old german
     private String oldGerman(String text) {
         text = text
@@ -120,9 +113,15 @@ public class TextFormatter implements Command {
         return text;
     }
 
+    private final String[] emojis = {
+            "\uD83C\uDDE9\uD83C\uDDEA", // 🇩🇪
+            "\uD83D\uDD8B", // 🖋
+            "\uD83C\uDF39" // 🌹
+    };
+
     @Override
     public void execute(CommandContext ctx) throws Exception {
-        //command usage
+        // Command usage
         if (ctx.getArguments().length == 0) {
             EmbedBuilder usage = new EmbedBuilder()
                     .setAuthor("format", null, ctx.getAuthor().getEffectiveAvatarUrl())
@@ -131,79 +130,49 @@ public class TextFormatter implements Command {
             ctx.getChannel().sendMessage(usage.build()).queue();
             return;
         }
-// Format options
+
+        // Format options
         EmbedBuilder selection = new EmbedBuilder()
                 .setAuthor("format", null, ctx.getAuthor().getEffectiveAvatarUrl())
                 .setColor(Utilities.getUtils().blue)
                 .addField("\uD83D\uDDDA │ format options",
-                        oldGerman("\uD83C\uDDE9\uD83C\uDDEA │ Lorem ipsum dolor sit amet.\n") +
-                                handwritten("\uD83D\uDD8B │ Lorem ipsum dolor sit amet.\n") +
-                                aesthetic("\uD83C\uDF39 │ Lorem ipsum dolor sit amet."),
+                        oldGerman(emojis[0] + " │ Lorem ipsum dolor sit amet.") +
+                                "\n" + handwritten(emojis[1] + " │ Lorem ipsum dolor sit amet.") +
+                                "\n" + aesthetic(emojis[2] + " │ Lorem ipsum dolor sit amet."),
                         false
                 );
-        Message message = ctx.getChannel().sendMessage(selection.build()).complete();
-        //get arguments
-        String text = "";
-        for (int i = 0; i < ctx.getArguments().length; i++) {
-            text += ctx.getArguments()[i] + " ";
-        }
-        //remove last space
-        text = text.substring(0, text.length() - 1);
-        //save message
-        messages.put(message.getId(), text);
-        //remove message
-        if (messages.get(message) == null) {
-            Utilities.TIMER.schedule(new Runnable() {
-                @Override
-                public void run() {
-                    messages.remove(message);
-                }
-            }, 1, TimeUnit.MINUTES);
-        }
-        //add reactions
-        message.addReaction("\uD83C\uDDE9\uD83C\uDDEA").queue();
-        message.addReaction("\uD83D\uDD8B").queue();
-        message.addReaction("\uD83C\uDF39").queue();
-        //save message id
-        MessageReaction.add(ctx.getGuild(), "format", message, ctx.getAuthor(),true, "\uD83C\uDDE9\uD83C\uDDEA", "\uD83D\uDD8B", "\uD83C\uDF39");
-    }
+        ctx.getChannel().sendMessage(selection.build()).queue(message -> { // Send selection message
+            // Add reactions
+            message.addReaction(emojis[0]).queue();
+            message.addReaction(emojis[1]).queue();
+            message.addReaction(emojis[2]).queue();
 
-    /**
-     * reaction
-     */
-    public void guildMessageReactionAddEvent(GuildMessageReactionAddEvent event) {
-        //check for right message
-        if (!MessageReaction.check(event, "format", true)) return;
+            ctx.waiter().waitForEvent(
+                    GuildMessageReactionAddEvent.class, // Event to wait for
+                    e -> !e.getUser().isBot()// Condition
+                            && e.getUser() == ctx.getAuthor()
+                            && e.getMessageId().equals(message.getId()),
+                    e -> { // Run on event
 
-        //return old german font
-        if (event.getReactionEmote().getEmoji().equals("\uD83C\uDDE9\uD83C\uDDEA") && !event.getMember().getUser().isBot()) {
-            //format message
-            EmbedBuilder formatted = new EmbedBuilder()
-                    .setAuthor("format", null, event.getUser().getEffectiveAvatarUrl())
-                    .setColor(Utilities.getUtils().blue)
-                    .setDescription(oldGerman(messages.get(event.getMessageId())));
-            event.getChannel().editMessageById(event.getMessageIdLong(), formatted.build()).queue();
-            event.getChannel().retrieveMessageById(event.getMessageId()).complete().clearReactions().complete();
-        }
-        //return handwritten font
-        if (event.getReactionEmote().getEmoji().equals("\uD83D\uDD8B") && !event.getMember().getUser().isBot()) {
-            //format message
-            EmbedBuilder formatted = new EmbedBuilder()
-                    .setAuthor("format", null, event.getUser().getEffectiveAvatarUrl())
-                    .setColor(Utilities.getUtils().blue)
-                    .setDescription(handwritten(messages.get(event.getMessageId())));
-            event.getChannel().editMessageById(event.getMessageIdLong(), formatted.build()).queue();
-            event.getChannel().retrieveMessageById(event.getMessageId()).complete().clearReactions().complete();
-        }
-        //return old german font
-        if (event.getReactionEmote().getEmoji().equals("\uD83C\uDF39") && !event.getMember().getUser().isBot()) {
-            //format message
-            EmbedBuilder formatted = new EmbedBuilder()
-                    .setAuthor("format", null, event.getUser().getEffectiveAvatarUrl())
-                    .setColor(Utilities.getUtils().blue)
-                    .setDescription(aesthetic(messages.get(event.getMessageId())));
-            event.getChannel().editMessageById(event.getMessageIdLong(), formatted.build()).queue();
-            event.getChannel().retrieveMessageById(event.getMessageId()).complete().clearReactions().complete();
-        }
+                        final String reaction = e.getReactionEmote().getEmoji(); // Get reacted emoji
+                        // Format message embed
+                        EmbedBuilder formatted = new EmbedBuilder()
+                                .setAuthor("format", null, e.getUser().getEffectiveAvatarUrl())
+                                .setColor(Utilities.getUtils().blue);
+
+                        // Format old german font
+                        if (reaction.equals(emojis[0])) formatted.setDescription(oldGerman(ctx.getArgumentsRaw()));
+                        // Format handwritten font
+                        if (reaction.equals(emojis[1])) formatted.setDescription(handwritten(ctx.getArgumentsRaw()));
+                        // Format aesthetic font
+                        if (reaction.equals(emojis[2])) formatted.setDescription(aesthetic(ctx.getArgumentsRaw()));
+
+                        message.editMessage(formatted.build()).queue(); // Edit message
+                        message.clearReactions().queue(); // Clear reactions
+                    },
+                    30L, TimeUnit.SECONDS, // Timeout
+                    () -> message.clearReactions().queue() // Run on timeout
+            );
+        });
     }
 }
