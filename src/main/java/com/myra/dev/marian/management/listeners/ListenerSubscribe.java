@@ -37,4 +37,10 @@ public @interface ListenerSubscribe {
      * @return The required permissions.
      */
     Permissions requires() default Permissions.MEMBER;
+
+    /**
+     * Retrieves if the listener is a premium feature.
+     * @return If the listener is a premium feature.
+     */
+    boolean premium() default false;
 }
