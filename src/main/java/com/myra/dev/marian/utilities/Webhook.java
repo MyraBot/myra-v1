@@ -34,6 +34,11 @@ public class Webhook {
         this.content = content;
     }
 
+    public void appendContent(String content) {
+        if (this.content == null) this.content = content;
+        else this.content += content;
+    }
+
     public void setUsername(String username) {
         this.username = username;
     }
