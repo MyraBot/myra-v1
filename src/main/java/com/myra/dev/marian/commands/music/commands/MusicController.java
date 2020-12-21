@@ -90,7 +90,6 @@ public class MusicController implements Command {
                                 cancel.cancel();
                                 removeHashMap.cancel();
                                 cancelTimer.remove(message);
-                                System.out.println("removing command from hashmap");
                             }
                         }
                     }, 5 * 1000);
