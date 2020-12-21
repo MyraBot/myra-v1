@@ -96,6 +96,7 @@ public class Manager {
         // Register commands
         COMMAND_SERVICE.register(
                 // Marian
+                new TestCommand(),
                 new SetGuildPremium(),
                 new MariansDiscordEmbeds(),
                 new GetInvite(),
