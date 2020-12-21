@@ -1,5 +1,6 @@
 package com.myra.dev.marian.utilities;
 
+import net.dv8tion.jda.api.entities.Message;
 import okhttp3.*;
 
 import java.awt.*;
@@ -37,6 +38,11 @@ public class Webhook {
     public void appendContent(String content) {
         if (this.content == null) this.content = content;
         else this.content += content;
+    }
+
+    public void addAttachmentAsUrl(Message.Attachment attachment) {
+        if (this.content == null) content = attachment.getUrl();
+        else this.content += attachment.getUrl();
     }
 
     public void setUsername(String username) {
@@ -152,7 +158,9 @@ public class Webhook {
                 .build();
 
         final Call call = client.newCall(request); // Create call
-        call.execute(); // Execute POST request
+        final Response response = call.execute();
+        response.close();
+
     }
 
     public static class EmbedObject {
