@@ -9,6 +9,8 @@ import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 @CommandSubscribe(
         name = "global chat",
         requires = Permissions.ADMINISTRATOR
@@ -33,7 +35,7 @@ public class GlobalChatChannel implements Command {
 
         // Create global chat
         if (webhookUrl == null) {
-           createWebhook(channel);
+            createWebhook(channel);
 
             Utilities.getUtils().success(ctx.getChannel(), "global chat", "\uD83C\uDF10", "Added a global chat", "Set the global chat to " + channel.getAsMention(), ctx.getAuthor().getEffectiveAvatarUrl(), false, null);
             Utilities.getUtils().success(channel, "global chat", "\uD83C\uDF10", "Added a global chat", "Here you will receive messages from other servers", ctx.getAuthor().getEffectiveAvatarUrl(), false, null);
@@ -41,6 +43,7 @@ public class GlobalChatChannel implements Command {
 
         // Change global chat
         if (webhookUrl != null) {
+            AtomicBoolean webhookUrlNull = new AtomicBoolean(true);
             ctx.getGuild().retrieveWebhooks().queue(webhooks -> webhooks.forEach(webhook -> {
                 if (!webhook.getUrl().equals(webhookUrl)) return;
 
@@ -49,6 +52,7 @@ public class GlobalChatChannel implements Command {
                     new Database(ctx.getGuild()).set("globalChat", null); // Update database
                     webhook.delete().queue(); // Delete webhook
                     Utilities.getUtils().success(ctx.getChannel(), "global chat", "\uD83C\uDF10", "Removed global chat", "The global chat has been removed", ctx.getAuthor().getEffectiveAvatarUrl(), false, null);
+                    webhookUrlNull.set(false);
                 }
 
                 // Change global chat
@@ -57,8 +61,16 @@ public class GlobalChatChannel implements Command {
                     createWebhook(channel); // Create webhook
                     Utilities.getUtils().success(ctx.getChannel(), "global chat", "\uD83C\uDF10", "Changed global chat", "Global chat is now set to " + channel.getAsMention(), ctx.getAuthor().getEffectiveAvatarUrl(), false, null);
                     Utilities.getUtils().success(channel, "global chat", "\uD83C\uDF10", "Changed global chat", "Here you will receive messages from other servers", ctx.getAuthor().getEffectiveAvatarUrl(), false, null);
+                    webhookUrlNull.set(false);
                 }
             }));
+
+            // If still no webhook is created (Will only happened on errors)
+            if (webhookUrlNull.get()) {
+                createWebhook(channel); // Create webhook
+                Utilities.getUtils().success(ctx.getChannel(), "global chat", "\uD83C\uDF10", "Changed global chat", "Global chat is now set to " + channel.getAsMention(), ctx.getAuthor().getEffectiveAvatarUrl(), false, null);
+                Utilities.getUtils().success(channel, "global chat", "\uD83C\uDF10", "Changed global chat", "Here you will receive messages from other servers", ctx.getAuthor().getEffectiveAvatarUrl(), false, null);
+            }
         }
     }
 
