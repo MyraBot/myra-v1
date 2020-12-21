@@ -75,7 +75,6 @@ public class GlobalChat implements Listener {
 
         final WebhookInformation guildWebhookInformation = new WebhookInformation(guildWebhookUrl); // Get webhook information
         if (!guildWebhookInformation.getChannelId().equals(event.getChannel().getId())) return; // Wrong channel
-        System.out.println("hi");
 
         // Message is still in range to edit
         if (messages.contains(event.getMessage())) {
@@ -88,7 +87,6 @@ public class GlobalChat implements Listener {
 
                 final WebhookInformation webhookInformation = new WebhookInformation(url); // Get webhook information
                 final TextChannel channel = guild.getTextChannelById(webhookInformation.getChannelId()); // Get global chat
-                System.out.println(channel.getName());
 
                 channel.getHistory().retrievePast(15).queue(history -> { // Retrieve last 15 messages
                     history.forEach(historyMessage -> { // Check every message
