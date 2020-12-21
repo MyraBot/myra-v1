@@ -88,6 +88,6 @@ public class YouTubeNotification {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }, start, 60, TimeUnit.MINUTES);
+        }, start, 120, TimeUnit.MINUTES);
     }
 }
