@@ -27,6 +27,7 @@ public class GlobalChat implements Listener {
         ctx.getChannel().retrieveWebhooks().queue(webhooks -> {
             if (webhooks.stream().noneMatch(webhook -> webhook.getUrl().equals(guildWebhook))) return;
 
+
             for (Document document : MongoDb.getInstance().getCollection("guilds").find(eq("premium", true))) {
                 final String url = document.getString("globalChat"); // Get global chat webhook url
                 if (url == null) continue; // No global chat set
@@ -48,14 +49,14 @@ public class GlobalChat implements Listener {
                                 final Message reply = ctx.getMessage().getReferencedMessage(); // Get message to reply
                                 message.setContent("> " + reply.getContentRaw() + "\\n "); // In JSON \n is \\n
                             }
-                                message.appendContent(ctx.getMessage().getContentRaw());
+                            message.appendContent(ctx.getMessage().getContentRaw()); // Add message
                             // Message has an attachments
                             if (!ctx.getMessage().getAttachments().isEmpty()) {
-                                message.appendContent("\\n"+ ctx.getMessage().getAttachments().get(0).getUrl());
+                                message.addAttachment(ctx.getMessage().getAttachments().get(0));
                             }
                             message.execute(); // Send message
                         } catch (IOException e) {
-                           e.printStackTrace();
+                            e.printStackTrace();
                         }
                     }
                 }));
