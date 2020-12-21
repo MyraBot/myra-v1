@@ -40,9 +40,9 @@ public class Webhook {
         else this.content += content;
     }
 
-    public void addAttachmentAsUrl(Message.Attachment attachment) {
-        if (this.content == null) content = attachment.getUrl();
-        else this.content += attachment.getUrl();
+    public void addAttachment(Message.Attachment attachment) {
+        if (this.content == null) content = attachment.getUrl() + "\\n";
+        else this.content += "\\n" + attachment.getUrl();
     }
 
     public void setUsername(String username) {
