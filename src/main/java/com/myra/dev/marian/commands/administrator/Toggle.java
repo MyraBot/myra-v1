@@ -62,7 +62,6 @@ public class Toggle implements Command {
                 }
                 return;
             }
-        System.out.println(command);
         // Command doesn't exist
         utilities.error(ctx.getChannel(), "toggle", "\uD83D\uDD11", "Couldn't find command", "The command doesn't exist", ctx.getAuthor().getEffectiveAvatarUrl());
         return;
