@@ -2,12 +2,12 @@ package com.myra.dev.marian.utilities;
 
 import net.dv8tion.jda.api.entities.Message;
 import okhttp3.*;
+import org.json.JSONObject;
 
 import java.awt.*;
 import java.io.IOException;
-import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.*;
 
 /**
  * Class used to execute Discord Webhooks with low effort
@@ -61,96 +61,16 @@ public class Webhook {
         this.embeds.add(embed);
     }
 
-    public void execute() throws IOException {
+    public void send() throws IOException {
         if (this.content == null && this.embeds.isEmpty()) {
             throw new IllegalArgumentException("Set content or add at least one EmbedObject");
         }
-
-        this.content = content.replace("\n", "\\n"); // In JSON \n is \\n
-
-        JSONObject json = new JSONObject();
-
-        json.put("content", this.content);
-        json.put("username", this.username);
-        json.put("avatar_url", this.avatarUrl);
-        json.put("tts", this.tts);
-
-        if (!this.embeds.isEmpty()) {
-            List<JSONObject> embedObjects = new ArrayList<>();
-
-            for (EmbedObject embed : this.embeds) {
-                JSONObject jsonEmbed = new JSONObject();
-
-                jsonEmbed.put("title", embed.getTitle());
-                jsonEmbed.put("description", embed.getDescription());
-                jsonEmbed.put("url", embed.getUrl());
-
-                if (embed.getColor() != null) {
-                    Color color = embed.getColor();
-                    int rgb = color.getRed();
-                    rgb = (rgb << 8) + color.getGreen();
-                    rgb = (rgb << 8) + color.getBlue();
-
-                    jsonEmbed.put("color", rgb);
-                }
-
-                EmbedObject.Footer footer = embed.getFooter();
-                EmbedObject.Image image = embed.getImage();
-                EmbedObject.Thumbnail thumbnail = embed.getThumbnail();
-                EmbedObject.Author author = embed.getAuthor();
-                List<EmbedObject.Field> fields = embed.getFields();
-
-                if (footer != null) {
-                    JSONObject jsonFooter = new JSONObject();
-
-                    jsonFooter.put("text", footer.getText());
-                    jsonFooter.put("icon_url", footer.getIconUrl());
-                    jsonEmbed.put("footer", jsonFooter);
-                }
-
-                if (image != null) {
-                    JSONObject jsonImage = new JSONObject();
-
-                    jsonImage.put("url", image.getUrl());
-                    jsonEmbed.put("image", jsonImage);
-                }
-
-                if (thumbnail != null) {
-                    JSONObject jsonThumbnail = new JSONObject();
-
-                    jsonThumbnail.put("url", thumbnail.getUrl());
-                    jsonEmbed.put("thumbnail", jsonThumbnail);
-                }
-
-                if (author != null) {
-                    JSONObject jsonAuthor = new JSONObject();
-
-                    jsonAuthor.put("name", author.getName());
-                    jsonAuthor.put("url", author.getUrl());
-                    jsonAuthor.put("icon_url", author.getIconUrl());
-                    jsonEmbed.put("author", jsonAuthor);
-                }
-
-                List<JSONObject> jsonFields = new ArrayList<>();
-                for (EmbedObject.Field field : fields) {
-                    JSONObject jsonField = new JSONObject();
-
-                    jsonField.put("name", field.getName());
-                    jsonField.put("value", field.getValue());
-                    jsonField.put("inline", field.isInline());
-
-                    jsonFields.add(jsonField);
-                }
-
-                jsonEmbed.put("fields", jsonFields.toArray());
-                embedObjects.add(jsonEmbed);
-            }
-
-            json.put("embeds", embedObjects.toArray());
+        if (this.embeds.size() > 10) {
+            throw new IllegalArgumentException("You can't add more than 10 embeds");
         }
 
-        RequestBody body = RequestBody.create(
-                MediaType.parse("application/json; charset=utf-8"), json.toString());
+        // Send a webhook message
+        final RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), getAsJSONObject().toString());
 
         Request request = new Request.Builder()
                 .url(url)
@@ -160,7 +80,53 @@ public class Webhook {
         final Call call = client.newCall(request); // Create call
         final Response response = call.execute();
         response.close();
+    }
 
+    /**
+     * Edit a webhook message.
+     *
+     * @throws IOException
+     */
+    public void edit(String messageId) throws Exception {
+        if (this.content == null && this.embeds.isEmpty()) {
+            throw new IllegalArgumentException("Set content or add at least one EmbedObject");
+        }
+        if (this.embeds.size() > 10) {
+            throw new Exception("You can't add more than 10 embeds");
+        }
+        if (!this.tts) {
+            throw new Exception("You can't use tts on editing messages");
+        }
+
+        final Request webhookRequest = new Request.Builder()
+                .url(this.url) // Get information about the webhook
+                .build();
+        final Call webhookCall = client.newCall(webhookRequest);
+        Response webhookResponse = webhookCall.execute(); // Execute call
+        JSONObject webhookInformation = new JSONObject(webhookResponse.body().string()); // Save response as JSONObject
+        webhookResponse.close(); // Close Response
+
+        final String guildId = webhookInformation.getString("guild_id"); // Get guild id
+        final String webhookId = webhookInformation.getString("id"); // Get webhook id
+        final String webhookToken = webhookInformation.getString("token"); // Get webhook token
+
+        // Create url to edit webhook message
+        final String editUrl = "https://discord.com/api/webhooks" + // https://discord.com/developers/docs/resources/webhook#modify-webhook
+                "/" + webhookId +
+                "/" + webhookToken +
+                "/messages" +
+                "/" + messageId;
+
+        final RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), getAsJSONObject().toString());
+
+        final Request editRequest = new Request.Builder()
+                .url(editUrl)
+                .patch(body)
+                .build();
+
+        final Call editCall = client.newCall(editRequest); // Create call
+        final Response editResponse = editCall.execute();
+        editResponse.close();
     }
 
     public static class EmbedObject {
@@ -347,52 +313,89 @@ public class Webhook {
         }
     }
 
-    private static class JSONObject {
+    private JSONObject getAsJSONObject() {
+        //this.content = content.replace("\n", "\\n"); // In JSON \n is \\n
 
-        private final HashMap<String, Object> map = new HashMap<>();
+        JSONObject json = new JSONObject();
 
-        void put(String key, Object value) {
-            if (value != null) {
-                map.put(key, value);
-            }
-        }
+        json.put("content", this.content);
+        json.put("username", this.username);
+        json.put("avatar_url", this.avatarUrl);
+        json.put("tts", this.tts);
 
-        @Override
-        public String toString() {
-            StringBuilder builder = new StringBuilder();
-            Set<Map.Entry<String, Object>> entrySet = map.entrySet();
-            builder.append("{");
+        if (!this.embeds.isEmpty()) {
+            List<JSONObject> embedObjects = new ArrayList<>();
 
-            int i = 0;
-            for (Map.Entry<String, Object> entry : entrySet) {
-                Object val = entry.getValue();
-                builder.append(quote(entry.getKey())).append(":");
+            for (EmbedObject embed : this.embeds) {
+                JSONObject jsonEmbed = new JSONObject();
 
-                if (val instanceof String) {
-                    builder.append(quote(String.valueOf(val)));
-                } else if (val instanceof Integer) {
-                    builder.append(Integer.valueOf(String.valueOf(val)));
-                } else if (val instanceof Boolean) {
-                    builder.append(val);
-                } else if (val instanceof JSONObject) {
-                    builder.append(val.toString());
-                } else if (val.getClass().isArray()) {
-                    builder.append("[");
-                    int len = Array.getLength(val);
-                    for (int j = 0; j < len; j++) {
-                        builder.append(Array.get(val, j).toString()).append(j != len - 1 ? "," : "");
-                    }
-                    builder.append("]");
+                jsonEmbed.put("title", embed.getTitle());
+                jsonEmbed.put("description", embed.getDescription());
+                jsonEmbed.put("url", embed.getUrl());
+
+                if (embed.getColor() != null) {
+                    Color color = embed.getColor();
+                    int rgb = color.getRed();
+                    rgb = (rgb << 8) + color.getGreen();
+                    rgb = (rgb << 8) + color.getBlue();
+
+                    jsonEmbed.put("color", rgb);
                 }
 
-                builder.append(++i == entrySet.size() ? "}" : ",");
+                EmbedObject.Footer footer = embed.getFooter();
+                EmbedObject.Image image = embed.getImage();
+                EmbedObject.Thumbnail thumbnail = embed.getThumbnail();
+                EmbedObject.Author author = embed.getAuthor();
+                List<EmbedObject.Field> fields = embed.getFields();
+
+                if (footer != null) {
+                    JSONObject jsonFooter = new JSONObject();
+
+                    jsonFooter.put("text", footer.getText());
+                    jsonFooter.put("icon_url", footer.getIconUrl());
+                    jsonEmbed.put("footer", jsonFooter);
+                }
+
+                if (image != null) {
+                    JSONObject jsonImage = new JSONObject();
+
+                    jsonImage.put("url", image.getUrl());
+                    jsonEmbed.put("image", jsonImage);
+                }
+
+                if (thumbnail != null) {
+                    JSONObject jsonThumbnail = new JSONObject();
+
+                    jsonThumbnail.put("url", thumbnail.getUrl());
+                    jsonEmbed.put("thumbnail", jsonThumbnail);
+                }
+
+                if (author != null) {
+                    JSONObject jsonAuthor = new JSONObject();
+
+                    jsonAuthor.put("name", author.getName());
+                    jsonAuthor.put("url", author.getUrl());
+                    jsonAuthor.put("icon_url", author.getIconUrl());
+                    jsonEmbed.put("author", jsonAuthor);
+                }
+
+                List<JSONObject> jsonFields = new ArrayList<>();
+                for (EmbedObject.Field field : fields) {
+                    JSONObject jsonField = new JSONObject();
+
+                    jsonField.put("name", field.getName());
+                    jsonField.put("value", field.getValue());
+                    jsonField.put("inline", field.isInline());
+
+                    jsonFields.add(jsonField);
+                }
+
+                jsonEmbed.put("fields", jsonFields.toArray());
+                embedObjects.add(jsonEmbed);
             }
 
-            return builder.toString();
+            json.put("embeds", embedObjects.toArray());
         }
-
-        private String quote(String string) {
-            return "\"" + string + "\"";
-        }
+        return json;
     }
 }

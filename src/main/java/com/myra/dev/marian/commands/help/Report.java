@@ -41,7 +41,7 @@ public class Report implements Command {
         }
 
         report.addEmbed(bug); // Add the JSON embed to webhook
-        report.execute(); // Send report as a webhook
+        report.send(); // Send report as a webhook
 
         Utilities.getUtils().success(ctx.getChannel(), "report", "\uD83D\uDC1B", "Successfully reported your bug", "Your bug report was successfully reported", ctx.getAuthor().getEffectiveAvatarUrl(), false, null);
     }

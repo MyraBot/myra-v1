@@ -5,7 +5,6 @@ import com.myra.dev.marian.Bot;
 import com.myra.dev.marian.commands.Leaderboard;
 import com.myra.dev.marian.commands.administrator.notifications.NotificationsList;
 import com.myra.dev.marian.commands.economy.blackjack.BlackJack;
-import com.myra.dev.marian.commands.fun.TextFormatter;
 import com.myra.dev.marian.commands.general.Reminder;
 import com.myra.dev.marian.commands.general.information.InformationServer;
 import com.myra.dev.marian.commands.help.InviteThanks;
@@ -16,6 +15,7 @@ import com.myra.dev.marian.commands.moderation.mute.Tempmute;
 import com.myra.dev.marian.commands.music.commands.MusicController;
 import com.myra.dev.marian.commands.music.commands.MusicPlay;
 import com.myra.dev.marian.database.MongoDbUpdate;
+import com.myra.dev.marian.listeners.GlobalChat;
 import com.myra.dev.marian.listeners.ReactionRoles;
 import com.myra.dev.marian.listeners.autorole.AutoroleAssign;
 import com.myra.dev.marian.listeners.leveling.VoiceCall;
@@ -44,6 +44,7 @@ import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMuteEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -153,6 +154,14 @@ public class Listeners extends ListenerAdapter {
             listenerService.processCommandExecution(event);
         } catch (Exception exception) {
             new ErrorCatch().catchError(exception, event);
+        }
+    }
+
+    public void onGuildMessageUpdate(@Nonnull GuildMessageUpdateEvent event) {
+        try {
+            new GlobalChat().messageEdited(event);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

@@ -43,7 +43,7 @@ public class Feature implements Command {
         }
 
         report.addEmbed(bug); // Add the JSON embed to webhook
-        report.execute(); // Send feature submit as a webhook
+        report.send(); // Send feature submit as a webhook
 
         ctx.getEvent().getJDA().getGuildById(Config.marianServer).retrieveWebhooks().queue(webhooks -> webhooks.forEach(webhook -> { // Go through every webhook
 
