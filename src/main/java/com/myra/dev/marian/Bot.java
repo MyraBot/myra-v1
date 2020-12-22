@@ -9,7 +9,6 @@ import net.dv8tion.jda.api.exceptions.RateLimitedException;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
-import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
 import javax.security.auth.login.LoginException;
@@ -27,14 +26,26 @@ public class Bot {
     private final EventWaiter waiter = new EventWaiter();
 
     private Bot() throws LoginException, RateLimitedException {
-        DefaultShardManagerBuilder jda = DefaultShardManagerBuilder.createDefault(TOKEN)
-                .enableIntents(GatewayIntent.GUILD_PRESENCES) // Need GatewayIntent.GUILD_PRESENCES for CacheFlag.ACTIVITY
-                .enableIntents(GatewayIntent.GUILD_MEMBERS)  // Need GatewayIntent.GUILD_MEMBERS for MemberCachePolicy.ALL
-                .enableCache(CacheFlag.ACTIVITY) // Need to get the activity of a member
-                .enableCache(CacheFlag.VOICE_STATE)
-                .enableCache(CacheFlag.EMOTE) // Need to get emotes from other servers
-                .setMemberCachePolicy(MemberCachePolicy.ALL)
+        DefaultShardManagerBuilder jda = DefaultShardManagerBuilder.create(
+                TOKEN,
+                // Enabled events
+                GatewayIntent.GUILD_MEMBERS,// Enabling events with members (Member join, leave, ...)
+                GatewayIntent.GUILD_MESSAGES, // Enabling message events (send, edit, delete, ...)
+                GatewayIntent.GUILD_MESSAGE_REACTIONS, // Reaction add remove bla bla
+                GatewayIntent.GUILD_VOICE_STATES,
 
+                GatewayIntent.GUILD_EMOJIS // Emote add/update/delete events. Also is needed for the CacheFlag
+        )
+                .enableCache(
+                        CacheFlag.EMOTE,
+                        CacheFlag.VOICE_STATE
+                )
+                .disableCache(
+                        CacheFlag.ACTIVITY,
+                        CacheFlag.CLIENT_STATUS,
+                        CacheFlag.MEMBER_OVERRIDES,
+                        CacheFlag.ROLE_TAGS
+                )
                 .setStatus(OnlineStatus.IDLE)
                 .setActivity(Activity.watching(LOADING_STATUS))
 
