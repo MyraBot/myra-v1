@@ -47,30 +47,22 @@ public class GlobalChatChannel implements Command {
             ctx.getGuild().retrieveWebhooks().queue(webhooks -> webhooks.forEach(webhook -> {
                 if (!webhook.getUrl().equals(webhookUrl)) return;
 
-                // Remove global chat
-                if (webhook.getChannel() == channel) {
-                    new Database(ctx.getGuild()).set("globalChat", null); // Update database
-                    webhook.delete().queue(); // Delete webhook
-                    Utilities.getUtils().success(ctx.getChannel(), "global chat", "\uD83C\uDF10", "Removed global chat", "The global chat has been removed", ctx.getAuthor().getEffectiveAvatarUrl(), false, null);
-                    webhookUrlNull.set(false);
-                }
-
                 // Change global chat
-                else {
+                if (webhook.getChannel() != channel) {
                     webhook.delete().queue(); // Delete webhook
                     createWebhook(channel); // Create webhook
                     Utilities.getUtils().success(ctx.getChannel(), "global chat", "\uD83C\uDF10", "Changed global chat", "Global chat is now set to " + channel.getAsMention(), ctx.getAuthor().getEffectiveAvatarUrl(), false, null);
                     Utilities.getUtils().success(channel, "global chat", "\uD83C\uDF10", "Changed global chat", "Here you will receive messages from other servers", ctx.getAuthor().getEffectiveAvatarUrl(), false, null);
-                    webhookUrlNull.set(false);
-                }
-            }));
 
-            // If still no webhook is created (Will only happened on errors)
-            if (webhookUrlNull.get()) {
-                createWebhook(channel); // Create webhook
-                Utilities.getUtils().success(ctx.getChannel(), "global chat", "\uD83C\uDF10", "Changed global chat", "Global chat is now set to " + channel.getAsMention(), ctx.getAuthor().getEffectiveAvatarUrl(), false, null);
-                Utilities.getUtils().success(channel, "global chat", "\uD83C\uDF10", "Changed global chat", "Here you will receive messages from other servers", ctx.getAuthor().getEffectiveAvatarUrl(), false, null);
-            }
+                }
+                // Remove global chat
+                else {
+                    new Database(ctx.getGuild()).set("globalChat", null); // Update database
+                    webhook.delete().queue(); // Delete webhook
+                    Utilities.getUtils().success(ctx.getChannel(), "global chat", "\uD83C\uDF10", "Removed global chat", "The global chat has been removed", ctx.getAuthor().getEffectiveAvatarUrl(), false, null);
+                }
+                webhookUrlNull.set(false);
+            }));
         }
     }
 
