@@ -150,7 +150,8 @@ public class CommandEmbeds {
                 .addField("`" + prefix + "notifications`", "\uD83D\uDD14 │ Set automatic notifications for youtube and twitch", false)
                 .addField("`" + prefix + "suggestions`", "\uD83D\uDDF3 │ Set up the suggestions", false)
                 .addField("`" + prefix + "leveling`", "\uD83C\uDFC6 │ Change some settings of leveling", false)
-                .addField("`" + prefix + "economy`", "\uD83D\uDCB0 │ Change some settings of economy", false);
+                .addField("`" + prefix + "economy`", "\uD83D\uDCB0 │ Change some settings of economy", false)
+                .addField("`" + prefix + "global chat <channel>`", "\uD83C\uDF10 │ Communicate with other servers", false);
     }
 
 
