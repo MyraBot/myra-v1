@@ -41,27 +41,10 @@ public class VoiceCall {
 
         // Member was muted
         if (state.isDeafened() || state.isMuted()) { // Will return a value if you are guild deafened/muted or self deafened/muted
-            if (!activeCalls.containsKey(event.getGuild().getId())) return;
-            if (!activeCalls.get(event.getGuild().getId()).containsKey(event.getMember().getId())) return;
-
-            final long currentSpokenTime = dbMember.getLong("voiceCallTime"); // Get voice call time until now
-            final long timeSpokenInMillis = System.currentTimeMillis() - activeCalls.get(event.getGuild().getId()).get(event.getMember().getId()); // Get voice call time from the active voice call
-            final long timeSpoken = TimeUnit.MILLISECONDS.toSeconds(timeSpokenInMillis); // Parse voice call time from the active voice call from milliseconds to second
-
-            dbMember.setLong("voiceCallTime", currentSpokenTime + timeSpoken); // Update voice call time
-            final Integer xp = dbMember.getInteger("xp"); // Get current xp
-            dbMember.setInteger("xp", xp + getXp(timeSpoken)); // Update xp
-            activeCalls.get(event.getGuild().getId()).remove(event.getMember().getId()); // Remove user from active calls
+            stopXpGain(event.getMember());
         }
         // Member was unmuted
-        else {
-            // No voice call has been registered yet
-            if (!activeCalls.containsKey(event.getGuild().getId())) {
-                activeCalls.put(event.getGuild().getId(), new HashMap<>()); // Add guild to active voice calls
-            }
-            // Add user
-            activeCalls.get(event.getGuild().getId()).put(event.getMember().getId(), System.currentTimeMillis()); // Save voice call start time
-        }
+        else startXpGain(event.getMember());
     }
 
     public void stopXpGain(Member member) {
