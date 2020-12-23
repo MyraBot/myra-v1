@@ -20,7 +20,7 @@ import static com.mongodb.client.model.Filters.eq;
 
 @CommandSubscribe(
         name = "reaction roles add",
-        aliases = {"rr add"},
+        aliases = {"reaction role add", "rr add"},
         requires = Permissions.ADMINISTRATOR
 )
 public class ReactionRolesAdd implements Command {
@@ -40,7 +40,7 @@ public class ReactionRolesAdd implements Command {
             EmbedBuilder usage = new EmbedBuilder()
                     .setAuthor("reaction roles add", null, ctx.getAuthor().getEffectiveAvatarUrl())
                     .setColor(Utilities.getUtils().blue)
-                    .addField("`" + ctx.getPrefix() + "reaction roles add <role>`", "", false);
+                    .addField("`" + ctx.getPrefix() + "reaction roles add <role>`", "\uD83D\uDD17 │ Bind a role to a reaction", false);
             ctx.getChannel().sendMessage(usage.build()).queue();
             return;
         }
