@@ -37,7 +37,6 @@ public class VoiceCall {
 
     public void updateXpGain(GuildVoiceMuteEvent event) {
         final GuildVoiceState state = event.getMember().getVoiceState(); // Members voice sate
-        final GetMember dbMember = new Database(event.getGuild()).getMembers().getMember(event.getMember()); // Get member in database
 
         // Member was muted
         if (state.isDeafened() || state.isMuted()) { // Will return a value if you are guild deafened/muted or self deafened/muted
@@ -54,10 +53,9 @@ public class VoiceCall {
         final GetMember dbMember = new Database(member.getGuild()).getMembers().getMember(member); // Get member in database
 
         final Long currentSpokenTime = dbMember.getLong("voiceCallTime"); // Get voice call time until now
-        final Long timeSpokenInMillis = System.currentTimeMillis() - activeCalls.get(member.getGuild().getId()).get(member.getId()); // Get voice call time from the active voice call
-        final long timeSpoken = TimeUnit.MILLISECONDS.toSeconds(timeSpokenInMillis); // Parse voice call time from the active voice call from milliseconds to seconds
-
+        final Long timeSpoken = System.currentTimeMillis() - activeCalls.get(member.getGuild().getId()).get(member.getId()); // Get voice call time from the active voice call
         dbMember.setLong("voiceCallTime", currentSpokenTime + timeSpoken); // Update voice call time
+
         final Integer xp = dbMember.getInteger("xp"); // Get current xp
         dbMember.setInteger("xp", xp + getXp(timeSpoken)); // Update xp
         activeCalls.get(member.getGuild().getId()).remove(member.getId()); // Remove user from active calls
@@ -78,8 +76,7 @@ public class VoiceCall {
         }
     }
 
-    private int getXp(long seconds) {
-        long time = TimeUnit.SECONDS.toMinutes(seconds); // Get spoken time in minutes
-        return Math.round(time / 2);
+    private int getXp(long millis) {
+        return (int) ((millis / 5) * 2);
     }
 }

@@ -1,5 +1,6 @@
 package com.myra.dev.marian.database;
 
+import com.mongodb.client.MongoCursor;
 import com.myra.dev.marian.management.Listeners;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.ReadyEvent;
@@ -125,8 +126,9 @@ public class MongoDbUpdate {
             );
         }
   */
-/*        // Member update
-        final MongoCursor<Document> iterator = mongoDb.getCollection("usersBackup").find().iterator();
+        /*
+        // Member update
+        final MongoCursor<Document> iterator = mongoDb.getCollection("users").find().iterator();
 
         while (iterator.hasNext()) {
             final Document document = iterator.next(); // Get next document
@@ -150,7 +152,7 @@ public class MongoDbUpdate {
                         .append("level", guildDocument.getInteger("level"))
                         .append("xp", guildDocument.getInteger("xp"))
                         .append("messages", guildDocument.getInteger("messages"))
-                        .append("voiceCallTime", Long.valueOf(0))
+                        .append("voiceCallTime", guildDocument.getLong("voiceCallTime"))
                         .append("balance", guildDocument.getInteger("balance"))
                         .append("dailyStreak", guildDocument.getInteger("dailyStreak"))
                         .append("lastClaim", guildDocument.getLong("lastClaim"))
@@ -158,8 +160,10 @@ public class MongoDbUpdate {
 
                 updatedUserDocument.append(key, updatedGuildDocument);
             }
-            mongoDb.getCollection("users").insertOne(updatedUserDocument);
-        }*/
+            mongoDb.getCollection("users").replaceOne(document, updatedUserDocument);
+        }
+
+         */
     }
 
     //add guild document
