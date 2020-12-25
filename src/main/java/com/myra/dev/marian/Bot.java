@@ -3,6 +3,8 @@ package com.myra.dev.marian;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.myra.dev.marian.management.Listeners;
 import com.myra.dev.marian.utilities.ConsoleColours;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.exceptions.RateLimitedException;
