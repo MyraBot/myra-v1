@@ -1,6 +1,5 @@
 package com.myra.dev.marian.utilities;
 
-import com.myra.dev.marian.Bot;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
@@ -162,9 +161,12 @@ public class Utilities {
      * @return Returns the formatted milliseconds as a String in the pattern hh:mm:ss.
      */
     public String formatTime(long timeInMillis) {
-        return String.format("%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(timeInMillis),
-                TimeUnit.MILLISECONDS.toMinutes(timeInMillis) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(timeInMillis)),
-                TimeUnit.MILLISECONDS.toSeconds(timeInMillis) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(timeInMillis)));
+        final long millis = timeInMillis % 1000;
+        final long second = (timeInMillis / 1000) % 60;
+        final long minute = (timeInMillis / (1000 * 60)) % 60;
+        final long hour = (timeInMillis / (1000 * 60 * 60)) % 24;
+
+        return String.format("%02dh %02dmin %02ds", hour, minute, second, millis);
     }
 
     /**
