@@ -60,7 +60,7 @@ public class CommandEmbeds {
                 .addField("`" + prefix + "calculate <number 1 <operator> <number 2>`", "\uD83E\uDDEE │ Let me calculate something for you", false)
                 .addField("`" + prefix + "avatar @user`", "\uD83D\uDDBC │ Gives you profile pictures of other people", false)
                 .addField("`" + prefix + "information`", "\uD83D\uDDD2 │ Gives you information", false)
-                .addField("`" + prefix + "reminder <duration><time unit> <description>`" ,"\u23F0 │ Let " + jda.getSelfUser().getName() + " remind you of something", false)
+                .addField("`" + prefix + "reminder <duration><time unit> <description>`", "\u23F0 │ Let " + jda.getSelfUser().getName() + " remind you of something", false)
                 .addField("`" + prefix + "suggest`", "\uD83D\uDDF3 │ Suggest something", false);
     }
 
@@ -144,14 +144,15 @@ public class CommandEmbeds {
                 .addField("`" + prefix + "toggle <command>`", "\uD83D\uDD11 │ Toggle commands on or off", false)
                 .addField("`" + prefix + "say <message>`", "\uD83D\uDCAC │ Let the bot say something", false)
                 .addField("`@someone`", "\uD83C\uDFB2 │ Replace in your message `@someone` with a random mention of a member", false)
-                .addField("`" + prefix + "log channel", "\uD83E\uDDFE │ Set the channel where logging messages go", false)
+                .addField("`" + prefix + "log channel`", "\uD83E\uDDFE │ Set the channel where logging messages go", false)
                 .addField("`" + prefix + "autorole @role`", "\uD83D\uDCDD │ Give a new joined member automatic a certain role", false)
                 .addField("`" + prefix + "welcome`", "\uD83D\uDC4B │ Welcome new users", false)
                 .addField("`" + prefix + "notifications`", "\uD83D\uDD14 │ Set automatic notifications for youtube and twitch", false)
                 .addField("`" + prefix + "suggestions`", "\uD83D\uDDF3 │ Set up the suggestions", false)
                 .addField("`" + prefix + "leveling`", "\uD83C\uDFC6 │ Change some settings of leveling", false)
                 .addField("`" + prefix + "economy`", "\uD83D\uDCB0 │ Change some settings of economy", false)
-                .addField("`" + prefix + "global chat <channel>`", "\uD83C\uDF10 │ Communicate with other servers", false);
+                .addField("`" + prefix + "global chat <channel>`", "\uD83C\uDF10 │ Communicate with other servers", false)
+                .addField("`" + prefix + "reaction roles`", "\uD83C\uDF80 │ Bind roles to reactions", false);
     }
 
 
