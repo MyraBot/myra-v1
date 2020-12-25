@@ -5,6 +5,8 @@ import com.myra.dev.marian.commands.Leaderboard;
 import com.myra.dev.marian.commands.administrator.*;
 import com.myra.dev.marian.commands.administrator.notifications.*;
 import com.myra.dev.marian.commands.administrator.reactionRoles.ReactionRolesAdd;
+import com.myra.dev.marian.commands.administrator.reactionRoles.ReactionRolesHelp;
+import com.myra.dev.marian.commands.administrator.reactionRoles.ReactionRolesRemove;
 import com.myra.dev.marian.commands.economy.*;
 import com.myra.dev.marian.commands.economy.administrator.Currency;
 import com.myra.dev.marian.commands.economy.administrator.EconomySet;
@@ -108,7 +110,9 @@ public class Manager {
                 new Toggle(),
                 new GlobalChatChannel(),
 
+                new ReactionRolesHelp(),
                 new ReactionRolesAdd(),
+                new ReactionRolesRemove(),
                 //
                 new LogChannel(),
                 // Help
