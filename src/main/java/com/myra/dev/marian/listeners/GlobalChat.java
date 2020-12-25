@@ -58,7 +58,7 @@ public class GlobalChat implements Listener {
             // Message is a reply
             if (ctx.getMessage().getReferencedMessage() != null) {
                 final Message reply = ctx.getMessage().getReferencedMessage(); // Get message to reply
-                message.setContent("> " + reply.getContentRaw() + "\\n "); // In JSON \n is \\n
+                message.setContent("> " + reply.getContentRaw() + "\n"); // In JSON \n is \\n
             }
             message.appendContent(ctx.getMessage().getContentRaw()); // Add message
             // Message has an attachments
