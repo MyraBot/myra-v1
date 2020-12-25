@@ -6,6 +6,7 @@ import com.myra.dev.marian.management.Manager;
 import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
+import com.myra.dev.marian.utilities.EmbedMessage;
 import com.myra.dev.marian.utilities.Permissions;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -54,12 +55,13 @@ public class Toggle implements Command {
                 boolean newValue = !db.getNested("commands").get(command, Boolean.class);
                 // Update database
                 db.getNested("commands").set(command, newValue, Manager.type.BOOLEAN);
-                //success information
-                if (newValue) {
-                    utilities.success(ctx.getChannel(), "toggle", "\uD83D\uDD11", "`" + command + "` got toggled on", "Members can now use the command `" + command + "` again", ctx.getAuthor().getEffectiveAvatarUrl(), false, null);
-                } else {
-                    utilities.success(ctx.getChannel(), "toggle", "\uD83D\uDD11", "`" + command + "` got toggled off", "From now on members can no longer use the command `" + command + "`", ctx.getAuthor().getEffectiveAvatarUrl(), false, null);
-                }
+                // Success information
+                EmbedMessage.Success success = new EmbedMessage.Success()
+                        .setCommand("toggle")
+                        .setEmoji("\uD83D\uDD11")
+                        .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl());
+                if (newValue) success.setMessage("Members can now use the command `" + command + "` again");
+                else success.setMessage("From now on members can no longer use the command `" + command + "`");
                 return;
             }
         // Command doesn't exist

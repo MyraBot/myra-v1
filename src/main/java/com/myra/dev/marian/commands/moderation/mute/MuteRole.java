@@ -4,6 +4,7 @@ import com.myra.dev.marian.database.allMethods.Database;
 import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
+import com.myra.dev.marian.utilities.EmbedMessage;
 import com.myra.dev.marian.utilities.Permissions;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -38,10 +39,15 @@ public class MuteRole implements Command {
         if (role == null) return;
         //get mute role id
         String muteRoleId = db.getString("muteRole");
+
+        EmbedMessage.Success success = new EmbedMessage.Success()
+                .setCommand("mute role")
+                .setEmoji("\uD83D\uDD07")
+                .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl());
         //remove mute role
         if (role.getId().equals(muteRoleId)) {
             //success
-            utilities.success(ctx.getChannel(), "mute role", "\uD83D\uDD07", "Removed mute role", "The mute role will no longer be " + ctx.getGuild().getRoleById(muteRoleId).getAsMention(), ctx.getAuthor().getEffectiveAvatarUrl(), false, null);
+            success.setMessage("The mute role will no longer be " + ctx.getGuild().getRoleById(muteRoleId).getAsMention()).send(ctx.getChannel());
             //database
             db.set("muteRole", role.getId());
             return;
@@ -49,6 +55,6 @@ public class MuteRole implements Command {
         //change mute role
         db.set("muteRole", role.getId());
         //role changed
-        utilities.success(ctx.getChannel(), "mute role", "\uD83D\uDCC4", "Muted role changed", "mute role set to " + role.getAsMention(), ctx.getAuthor().getEffectiveAvatarUrl(), false, null);
+        success.setMessage("Mute role set to " + role.getAsMention()).send(ctx.getChannel());
     }
 }

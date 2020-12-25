@@ -5,6 +5,7 @@ import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
 import com.myra.dev.marian.utilities.Config;
+import com.myra.dev.marian.utilities.EmbedMessage;
 import com.myra.dev.marian.utilities.Permissions;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -68,6 +69,11 @@ public class EconomySet implements Command {
         // Change balance in database
         db.getMembers().getMember(member).setBalance(updatedBalance);
         // Success
-        utilities.success(ctx.getChannel(), "economy set", "\uD83D\uDC5B", "Updated balance", member.getAsMention() + "has now `" + utilities.formatNumber(updatedBalance) + "` " + db.getNested("economy").getString("currency"), ctx.getAuthor().getEffectiveAvatarUrl(), false, null);
+        EmbedMessage.Success success = new EmbedMessage.Success()
+                .setCommand("economy set")
+                .setEmoji("\uD83D\uDC5B")
+                .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl())
+                .setMessage(member.getAsMention() + "has now `" + utilities.formatNumber(updatedBalance) + "` " + db.getNested("economy").getString("currency"));
+        success.send(ctx.getChannel());
     }
 }

@@ -6,6 +6,7 @@ import com.myra.dev.marian.management.Manager;
 import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
+import com.myra.dev.marian.utilities.EmbedMessage;
 import com.myra.dev.marian.utilities.Permissions;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -40,24 +41,21 @@ public class WelcomeChannel implements Command {
         // Get database
         Database db = new Database(ctx.getGuild());
         // Get current welcome channel
-        String currentChannelId = db.getNested("welcome").getString("welcomeChannel").toString();
+        String currentChannelId = db.getNested("welcome").getString("welcomeChannel");
+        // Success
+        EmbedMessage.Success success = new EmbedMessage.Success()
+                .setCommand("welcome channel")
+                .setEmoji("\uD83D\uDCC1")
+                .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl());
         //remove welcome channel
         if (currentChannelId.equals(channel.getId())) {
-            //remove channel id
-            db.getNested("welcome").set("welcomeChannel", "not set", Manager.type.STRING);
-            //success
-            utilities.success(ctx.getChannel(), "welcome channel", "\uD83D\uDCC1", "Welcome channel removed", "Welcome are no longer send in " + channel.getAsMention(), ctx.getAuthor().getEffectiveAvatarUrl(), false, null);
-            return;
+            db.getNested("welcome").set("welcomeChannel", "not set", Manager.type.STRING); // Remove channel id
+            success.setMessage("Welcome are no longer send in " + channel.getAsMention()).send(ctx.getChannel()); // Success message
+        } else {
+            db.getNested("welcome").setString("welcomeChannel", channel.getId()); // Update database
+            // Success message
+            success.setMessage("Welcome messages are now send in " + channel.getAsMention()).send(ctx.getChannel());
+            success.setMessage("Welcome actions are now send in here").send(channel);
         }
-        // Update database
-        db.getNested("welcome").set("welcomeChannel", channel.getId(), Manager.type.STRING);
-        // Success message
-        utilities.success(ctx.getChannel(), "welcome channel", "\uD83D\uDCC1", "Welcome channel changed", "Welcome messages are now send in " + channel.getAsMention(), ctx.getAuthor().getEffectiveAvatarUrl(), false, null);
-        // Success message in welcome channel
-        EmbedBuilder logChannelInfo = new EmbedBuilder()
-                .setAuthor("welcome channel", null, ctx.getAuthor().getEffectiveAvatarUrl())
-                .setColor(utilities.blue)
-                .addField("\uD83D\uDCC1 │ welcome channel changed", "welcome actions are now send in here", false);
-        channel.sendMessage(logChannelInfo.build()).queue();
     }
 }

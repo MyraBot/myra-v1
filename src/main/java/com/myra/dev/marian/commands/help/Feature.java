@@ -5,6 +5,7 @@ import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
 import com.myra.dev.marian.utilities.Config;
+import com.myra.dev.marian.utilities.EmbedMessage;
 import com.myra.dev.marian.utilities.Utilities;
 import com.myra.dev.marian.utilities.Webhook;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -58,6 +59,12 @@ public class Feature implements Command {
 
         }));
 
-        Utilities.getUtils().success(ctx.getChannel(), "feature", "\uD83D\uDCCC", "Successfully submitted your suggestion", "Your feature submissions was successfully submitted", ctx.getAuthor().getEffectiveAvatarUrl(), false, null);
+        // Success information
+        EmbedMessage.Success success = new EmbedMessage.Success()
+                .setCommand("feature")
+                .setEmoji("\uD83D\uDCCC")
+                .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl())
+                .setMessage("Your feature request was successfully submitted");
+        success.send(ctx.getChannel());
     }
 }

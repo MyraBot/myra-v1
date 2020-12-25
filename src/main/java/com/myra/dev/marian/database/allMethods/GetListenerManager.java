@@ -1,7 +1,7 @@
 package com.myra.dev.marian.database.allMethods;
 
 import com.myra.dev.marian.database.MongoDb;
-import com.myra.dev.marian.utilities.Utilities;
+import com.myra.dev.marian.utilities.EmbedMessage;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.bson.Document;
@@ -43,10 +43,11 @@ public class GetListenerManager {
         //replace guild Document
         mongoDb.getCollection("guilds").findOneAndReplace(mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first(), updatedDocument);
         //success information
-        if (newValue) {
-            Utilities.getUtils().success(event.getChannel(), listener, commandEmoji, "`" + listener + "` got toggled on", "`" + listener + "` is now enabled", event.getAuthor().getEffectiveAvatarUrl(), false, null);
-        } else {
-            Utilities.getUtils().success(event.getChannel(), listener, commandEmoji, "`" + listener + "` got toggled off", "`" + listener + "` is now disabled", event.getAuthor().getEffectiveAvatarUrl(), false, null);
-        }
+        EmbedMessage.Success success = new EmbedMessage.Success()
+                .setCommand(listener)
+                .setEmoji(commandEmoji)
+                .setAvatar(event.getAuthor().getEffectiveAvatarUrl());
+        if (newValue) success.setMessage("`" + listener + "` got toggled on").send(event.getChannel());
+        else success.setMessage("`" + listener + "` got toggled off").send(event.getChannel());
     }
 }

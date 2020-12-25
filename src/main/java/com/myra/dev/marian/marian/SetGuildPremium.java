@@ -4,6 +4,7 @@ import com.myra.dev.marian.database.MongoDb;
 import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
+import com.myra.dev.marian.utilities.EmbedMessage;
 import com.myra.dev.marian.utilities.Permissions;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.entities.Guild;
@@ -32,6 +33,10 @@ public class SetGuildPremium implements Command {
         document.replace("premium", newValue); // Update premium status
 
         MongoDb.getInstance().getCollection("guilds").findOneAndReplace(eq("guildId", guildId), document); // Update guild document
-        Utilities.getUtils().success(ctx.getChannel(), "set premium", "", guild.getName() + " has now premium", "Now you're one of the cool guys", guild.getIconUrl(), false, null);
+        EmbedMessage.Success success = new EmbedMessage.Success()
+                .setCommand("set premium")
+                .setAvatar(guild.getIconUrl())
+                .setMessage(guild.getName() + " has now premium");
+        success.send(ctx.getChannel());
     }
 }

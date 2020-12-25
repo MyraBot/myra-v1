@@ -5,6 +5,7 @@ import com.myra.dev.marian.management.Manager;
 import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
+import com.myra.dev.marian.utilities.EmbedMessage;
 import com.myra.dev.marian.utilities.Permissions;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -50,12 +51,12 @@ public class WelcomeImageBackground implements Command {
         //save in database
         new Database(ctx.getGuild()).getNested("welcome").set("welcomeImageBackground", ctx.getArguments()[0], Manager.type.STRING);
         //success
-        utilities.success(ctx.getChannel(),
-                "welcome image background",
-                "\uD83D\uDDBC",
-                "Changed welcome image background",
-                "The background has been changed to:",
-                ctx.getAuthor().getEffectiveAvatarUrl(),
-                false, ctx.getArguments()[0]);
+        EmbedMessage.Success success = new EmbedMessage.Success()
+                .setCommand("welcome image background")
+                .setEmoji("\uD83D\uDDBC")
+                .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl())
+                .setMessage("The background has been changed to:")
+                .setImage(ctx.getArguments()[0]);
+        success.send(ctx.getChannel());
     }
 }

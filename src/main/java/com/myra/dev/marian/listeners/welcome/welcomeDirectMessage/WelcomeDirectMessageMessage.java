@@ -5,8 +5,8 @@ import com.myra.dev.marian.management.Manager;
 import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
+import com.myra.dev.marian.utilities.EmbedMessage;
 import com.myra.dev.marian.utilities.Permissions;
-import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 @CommandSubscribe(
@@ -38,11 +38,16 @@ public class WelcomeDirectMessageMessage implements Command {
         db.getNested("welcome").set("welcomeDirectMessage", message, Manager.type.STRING);
         //success
         String welcomeMessage = db.getNested("welcome").getString("welcomeDirectMessage");
-        Utilities.getUtils().success(ctx.getChannel(), "welcome direct message", "\u2709\uFE0F", "Welcome message changed",
-                welcomeMessage
+        EmbedMessage.Success success = new EmbedMessage.Success()
+                .setCommand("welcome direct message")
+                .setEmoji("\u2709\uFE0F")
+                .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl())
+                .setMessage("Welcome message changed to" +
+                        "\n" + welcomeMessage
                         .replace("{user}", ctx.getAuthor().getAsMention())
                         .replace("{server}", ctx.getGuild().getName())
-                        .replace("{count}", Integer.toString(ctx.getGuild().getMemberCount())),
-                ctx.getAuthor().getEffectiveAvatarUrl(), false, null);
+                        .replace("{count}", Integer.toString(ctx.getGuild().getMemberCount()))
+                );
+        success.send(ctx.getChannel());
     }
 }

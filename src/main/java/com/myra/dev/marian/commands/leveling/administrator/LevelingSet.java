@@ -5,6 +5,7 @@ import com.myra.dev.marian.listeners.leveling.Leveling;
 import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
+import com.myra.dev.marian.utilities.EmbedMessage;
 import com.myra.dev.marian.utilities.Permissions;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -19,8 +20,7 @@ public class LevelingSet implements Command {
 
     @Override
     public void execute(CommandContext ctx) throws Exception {
-        // Get utilities
-        Utilities utilities = Utilities.getUtils();
+        Utilities utilities = Utilities.getUtils(); // Get utilities
         // Usage
         if (ctx.getArguments().length != 2) {
             EmbedBuilder usage = new EmbedBuilder()
@@ -46,7 +46,12 @@ public class LevelingSet implements Command {
         db.getMembers().getMember(ctx.getGuild().getMember(user)).setInteger("xp", leveling.xpFromLevel(Integer.parseInt(ctx.getArguments()[1]))); // Update xp
 
         //send success message
-        Utilities.getUtils().success(ctx.getChannel(), "leveling set", "\uD83C\uDFC6", user.getName() + "'s level changed", user.getAsMention() + " is now level `" + ctx.getArguments()[1] + "`", ctx.getAuthor().getEffectiveAvatarUrl(), false, null);
+        EmbedMessage.Success success = new EmbedMessage.Success()
+                .setCommand("leveling set")
+                .setEmoji("\uD83C\uDFC6")
+                .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl())
+                .setMessage(user.getAsMention() + " is now level `" + ctx.getArguments()[1] + "`");
+        success.send(ctx.getChannel());
         // CHeck for leveling roles
         leveling.levelingRoles(ctx.getGuild(), ctx.getGuild().getMember(user), new Database(ctx.getGuild()).getMembers().getMember(ctx.getGuild().getMember(user)));
     }

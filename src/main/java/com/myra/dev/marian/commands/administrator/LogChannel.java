@@ -4,6 +4,7 @@ import com.myra.dev.marian.database.allMethods.Database;
 import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
+import com.myra.dev.marian.utilities.EmbedMessage;
 import com.myra.dev.marian.utilities.Permissions;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -39,8 +40,12 @@ public class LogChannel implements Command {
             // Update database
             db.set("logChannel", "not set");
             // Send success message
-            utilities.success(ctx.getChannel(), "log channel", "\uD83E\uDDFE", "Log channel removed", "Log are no longer send in " + channel.getAsMention(), ctx.getAuthor().getEffectiveAvatarUrl(), false, null);
-            return;
+            EmbedMessage.Success success = new EmbedMessage.Success()
+                    .setCommand("log channel")
+                    .setEmoji( "\uD83E\uDDFE")
+                    .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl())
+                    .setMessage("Logs are no longer send in " + channel.getAsMention());
+            success.send(ctx.getChannel());
         }
         // Change log channel
         else {

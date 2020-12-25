@@ -5,6 +5,7 @@ import com.myra.dev.marian.management.Manager;
 import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
+import com.myra.dev.marian.utilities.EmbedMessage;
 import com.myra.dev.marian.utilities.Permissions;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -53,6 +54,11 @@ public class WelcomeColour implements Command {
         //save in database
         new Database(ctx.getGuild()).getNested("welcome").set("welcomeColour", hex, Manager.type.INTEGER);
         //success
-        utilities.success(ctx.getChannel(), "welcome embed colour", "\uD83C\uDFA8", "Updated Colour", "Colour changed to `" + hex.replace("0x", "#") + "`", ctx.getAuthor().getEffectiveAvatarUrl(), false, null);
+        EmbedMessage.Success success = new EmbedMessage.Success()
+                .setCommand("welcome embed colour")
+                .setEmoji("\uD83C\uDFA8")
+                .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl())
+                .setMessage("Colour changed to `" + hex.replace("0x", "#") + "`");
+        success.send(ctx.getChannel());
     }
 }

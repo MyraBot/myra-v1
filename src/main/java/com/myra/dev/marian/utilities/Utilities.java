@@ -191,27 +191,6 @@ public class Utilities {
                 .queue();
     }
 
-    //success info
-    public void success(TextChannel textChannel, String command, String commandEmoji, String successHeader, String success, String authorAvatar, boolean deleteAfter5Seconds, String imageUrl) {
-        if (deleteAfter5Seconds) {
-            textChannel.sendMessage(new EmbedBuilder()
-                    .setAuthor(command, null, authorAvatar)
-                    .setColor(Utilities.getUtils().green)
-                    .addField("\uD83C\uDFC1 │ " + successHeader, success, false)
-                    .setImage(imageUrl)
-                    .build()
-            ).queue((message -> message.delete().queueAfter(5, TimeUnit.SECONDS)));
-        } else {
-            textChannel.sendMessage(new EmbedBuilder()
-                    .setAuthor(command, null, authorAvatar)
-                    .setColor(Utilities.getUtils().green)
-                    .addField("\uD83C\uDFC1 │ " + successHeader, success, false)
-                    .setImage(imageUrl)
-                    .build()
-            ).queue();
-        }
-    }
-
     /**
      * Get member from message.
      *

@@ -4,6 +4,7 @@ import com.myra.dev.marian.database.allMethods.Database;
 import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
+import com.myra.dev.marian.utilities.EmbedMessage;
 import com.myra.dev.marian.utilities.Permissions;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -50,18 +51,23 @@ public class WelcomeImageFont implements Command {
                     e -> { // Run on event
                         final Database db = new Database(e.getGuild()); // Get database
                         final String reaction = e.getReactionEmote().getEmoji(); // Get reacted emoji
+
+                        EmbedMessage.Success success = new EmbedMessage.Success()
+                                .setCommand("welcome image font")
+                                .setEmoji("\uD83D\uDDDB")
+                                .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl());
                         // Fonts
                         if (reaction.equals(emojis[0])) {
                             db.getNested("welcome").setString("welcomeImageFont", "default"); // Update database
-                            Utilities.getUtils().success(e.getChannel(), "welcome image font", "\uD83D\uDDDB", "Changed welcome image font", "You have changed the font to `default`", e.getUser().getEffectiveAvatarUrl(), false, null);
+                            success.setMessage("You have changed the font to `default`").send(ctx.getChannel());
                         }
                         if (reaction.equals(emojis[1])) {
                             db.getNested("welcome").setString("welcomeImageFont", "modern"); // Update database
-                            Utilities.getUtils().success(e.getChannel(), "welcome image font", "\uD83D\uDDDB", "Changed welcome image font", "You have changed the font to `modern`", e.getUser().getEffectiveAvatarUrl(), false, null);
+                            success.setMessage("You have changed the font to `modern`").send(ctx.getChannel());
                         }
                         if (reaction.equals(emojis[2])) {
                             db.getNested("welcome").setString("welcomeImageFont", "handwritten"); // Update database
-                            Utilities.getUtils().success(e.getChannel(), "welcome image font", "\uD83D\uDDDB", "Changed welcome image font", "You have changed the font to `handwritten`", e.getUser().getEffectiveAvatarUrl(), false, null);
+                            success.setMessage("You have changed the font to `handwritten`").send(ctx.getChannel());
                         }
                     },
                     30, TimeUnit.SECONDS,

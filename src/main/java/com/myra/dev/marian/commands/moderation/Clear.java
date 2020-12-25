@@ -4,6 +4,7 @@ package com.myra.dev.marian.commands.moderation;
 import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
+import com.myra.dev.marian.utilities.EmbedMessage;
 import com.myra.dev.marian.utilities.Permissions;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -16,11 +17,8 @@ import net.dv8tion.jda.api.EmbedBuilder;
 public class Clear implements Command {
     @Override
     public void execute(CommandContext ctx) throws Exception {
-        // If amount isn't a number
-        if (!ctx.getArguments()[0].matches("\\d+")) return;
-        // Get utilities
-        Utilities utilities = Utilities.getUtils();
-        // Usage
+        Utilities utilities = Utilities.getUtils(); // Get utilities
+        // Command usage
         if (ctx.getArguments().length != 1) {
             EmbedBuilder embed = new EmbedBuilder()
                     .setAuthor("clear", null, ctx.getAuthor().getEffectiveAvatarUrl())
@@ -30,6 +28,10 @@ public class Clear implements Command {
             return;
         }
 // Clear messages
+        // If amount isn't a number
+        if (!ctx.getArguments()[0].matches("\\d+")) {
+            //TODO ERROR
+        }
         // Delete messages
         try {
             // Retrieve messages
@@ -37,7 +39,13 @@ public class Clear implements Command {
                 ctx.getChannel().deleteMessages(messages).queue(); // Delete messages
             });
             // Success information
-            utilities.success(ctx.getChannel(), "clear", "\uD83D\uDDD1", "the message were deleted successfully", "`" + ctx.getArguments()[0] + "` messages have been deleted", ctx.getEvent().getJDA().getSelfUser().getEffectiveAvatarUrl(), true, null);
+            EmbedMessage.Success success = new EmbedMessage.Success()
+                    .setCommand("clear")
+                    .setEmoji("\uD83D\uDDD1")
+                    .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl())
+                    .setMessage("`" + ctx.getArguments()[0] + "` messages have been deleted")
+                    .delete();
+            success.send(ctx.getChannel());
         }
         // Errors
         catch (Exception exception) {

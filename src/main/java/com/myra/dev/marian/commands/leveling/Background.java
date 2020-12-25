@@ -4,6 +4,7 @@ import com.myra.dev.marian.database.allMethods.Database;
 import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
+import com.myra.dev.marian.utilities.EmbedMessage;
 import com.myra.dev.marian.utilities.Graphic;
 import com.myra.dev.marian.utilities.MessageReaction;
 import com.myra.dev.marian.utilities.Utilities;
@@ -20,6 +21,7 @@ import java.net.URL;
         name = "edit rank"
 )
 public class Background implements Command {
+    // TODO event waiter
 
     @Override
     public void execute(CommandContext ctx) throws Exception {
@@ -65,7 +67,7 @@ public class Background implements Command {
         message.addReaction("\u2705").queue(); // Checkmark
         message.addReaction("\uD83D\uDEAB").queue(); // Barrier
 
-        MessageReaction.add(ctx.getGuild(), "edit rank", message, ctx.getAuthor(),true, "\u2705", "\uD83D\uDEAB");
+        MessageReaction.add(ctx.getGuild(), "edit rank", message, ctx.getAuthor(), true, "\u2705", "\uD83D\uDEAB");
     }
 
 
@@ -80,12 +82,14 @@ public class Background implements Command {
             // Update balance
             db.getMembers().getMember(event.getMember()).setBalance(db.getMembers().getMember(event.getMember()).getBalance() - 10000);
             // Send success
-            Utilities.getUtils().success(event.getChannel(),
-                    "edit rank", "\uD83D\uDDBC",
-                    "New rank background",
-                    "You bought a new rank background:",
-                    event.getUser().getEffectiveAvatarUrl(), false, event.getChannel().retrieveMessageById(event.getMessageId()).complete().getEmbeds().get(0).getImage().getUrl()
-            );
+            event.retrieveMessage().queue(message -> {
+                EmbedMessage.Success success = new EmbedMessage.Success()
+                        .setCommand("edit rank")
+                        .setEmoji("\uD83D\uDDBC")
+                        .setMessage("You bought a new rank background:")
+                        .setImage(message.getEmbeds().get(0).getImage().getUrl());
+                success.send(event.getChannel());
+            });
             // Save new image in database
             db.getMembers().getMember(event.getMember()).setString("rankBackground", event.getChannel().retrieveMessageById(event.getMessageId()).complete().getEmbeds().get(0).getImage().getUrl());
         }
