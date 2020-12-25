@@ -4,6 +4,7 @@ import com.myra.dev.marian.database.allMethods.Database;
 import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
+import com.myra.dev.marian.utilities.EmbedMessage;
 import com.myra.dev.marian.utilities.Permissions;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -55,6 +56,10 @@ public class LevelingRolesRemove implements Command {
             }
         }
         // Success message
-        utilities.success(ctx.getChannel(), "leveling roles remove", "\uD83C\uDFC5", "Remove leveling role", role.getAsMention() + " is no longer linked up with level " + String.valueOf(roleDocument.getInteger("level")), ctx.getAuthor().getEffectiveAvatarUrl(), false, null);
+        EmbedMessage.Success success = new EmbedMessage.Success()
+                .setCommand("leveling roles remove")
+                .setEmoji("\uD83C\uDFC5")
+                .setMessage(role.getAsMention() + " is no longer linked up with level " + roleDocument.getInteger("level"));
+        success.send(ctx.getChannel());
     }
 }
