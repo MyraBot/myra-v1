@@ -81,6 +81,7 @@ public class CommandEmbeds {
                 .setColor(Utilities.getUtils().gray)
                 .addField("`" + prefix + "rank <user>`", "\uD83C\uDFC5 │ Shows the rank of a user", false)
                 .addField("`" + prefix + "leaderboard`", "\uD83E\uDD47 │ Shows the leaderboard", false)
+                .addField("`" + prefix + "time <user>`", "\u231A │ Check the time a user spend in a voice call", false)
                 .addField("`" + prefix + "edit rank <url>`", "\uD83D\uDDBC │ Set a custom rank background", false);
     }
 
