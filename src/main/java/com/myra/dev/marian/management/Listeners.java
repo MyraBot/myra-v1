@@ -38,6 +38,7 @@ import net.dv8tion.jda.api.events.channel.text.TextChannelCreateEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleAddEvent;
 import net.dv8tion.jda.api.events.guild.update.GuildUpdateNameEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
@@ -64,13 +65,19 @@ public class Listeners extends ListenerAdapter {
     public static boolean ready = false;
     private final static Logger LOGGER = LoggerFactory.getLogger(Listener.class);
     private final static String onlineInfo = "Bot online!";
-    // Reactions
+    //Message Events
+    //Guild (TextChannel) Message Events
+    private final GlobalChat globalChat = new GlobalChat();
     private final NotificationsList notificationsList = new NotificationsList();
     private final ReactionRoles reactionRoles = new ReactionRoles();
     private final InformationServer informationServer = new InformationServer();
     private final Background background = new Background();
     private final BlackJack blackJack = new BlackJack();
     private final Leaderboard leaderboard = new Leaderboard();
+    //Guild Member Events
+    private final WelcomeListener welcomeListener = new WelcomeListener();
+    private final AutoroleAssign autoroleAssign = new AutoroleAssign();
+    private final Roles roles = new Roles();
     //Guild Voice Events
     private final VoiceCall voiceCall = new VoiceCall();
 
@@ -81,29 +88,29 @@ public class Listeners extends ListenerAdapter {
     }
 
     private void online() {
-        final int start = 60 - LocalDateTime.now().getMinute() % 60; // Get time to start changing the profile picutre
+        final int start = 60 - LocalDateTime.now().getMinute() % 60; // Get time to start changing the profile picture
         // Set her status to online
         Bot.shardManager.getShards().forEach(bot -> {
             bot.getPresence().setActivity(Activity.listening("~help │ " + bot.getGuilds().size() + " servers")); // Change status
         });
         // Get a random one
         Utilities.TIMER.scheduleAtFixedRate(() -> {
-            final InputStream profilePicture = null; // Create variable for new profile picture
+            InputStream profilePicture = null; // Create variable for new profile picture
             while (profilePicture == null) { // If profile picture is still null
-                this.getClass().getClassLoader().getResourceAsStream("profilePicture" + new Random().nextInt(9) + ".png");
+                profilePicture = this.getClass().getClassLoader().getResourceAsStream("profilePicture" + new Random().nextInt(9) + ".png");
             }
             // Change profile
+            InputStream finalProfilePicture = profilePicture;
             Bot.shardManager.getShards().forEach(bot -> {
                 try {
                     bot.getPresence().setActivity(Activity.listening("~help │ " + bot.getGuilds().size() + " servers")); // Change status
-                    bot.getSelfUser().getManager().setAvatar(Icon.from(profilePicture)).queue(); // Change profile picture
+                    bot.getSelfUser().getManager().setAvatar(Icon.from(finalProfilePicture)).queue(); // Change profile picture
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             });
         }, start, 60, TimeUnit.MINUTES);
     }
-
 
     //JDA Events
     public void onReady(@Nonnull ReadyEvent event) {
@@ -139,9 +146,9 @@ public class Listeners extends ListenerAdapter {
         }
     }
 
-
     //Message Events
     //Guild (TextChannel) Message Events
+    @Override
     public void onGuildMessageReceived(@Nonnull GuildMessageReceivedEvent event) {
         if (!ready) return;
         try {
@@ -157,14 +164,16 @@ public class Listeners extends ListenerAdapter {
         }
     }
 
+    @Override
     public void onGuildMessageUpdate(@Nonnull GuildMessageUpdateEvent event) {
         try {
-            new GlobalChat().messageEdited(event);
+            globalChat.messageEdited(event);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    @Override
     public void onGuildMessageReactionAdd(@Nonnull GuildMessageReactionAddEvent event) {
         try {
             if (!ready) return;
@@ -188,6 +197,7 @@ public class Listeners extends ListenerAdapter {
         }
     }
 
+    @Override
     public void onGuildMessageReactionRemove(@Nonnull GuildMessageReactionRemoveEvent event) {
         try {
             if (!ready) return;
@@ -197,8 +207,8 @@ public class Listeners extends ListenerAdapter {
         }
     }
 
-
     //TextChannel Events
+    @Override
     public void onTextChannelCreate(@Nonnull TextChannelCreateEvent event) {
         try {
             if (!ready) return;
@@ -209,8 +219,8 @@ public class Listeners extends ListenerAdapter {
         }
     }
 
-
     //Guild Events
+    @Override
     public void onGuildJoin(@Nonnull GuildJoinEvent event) {
         try {
             if (!ready) return;
@@ -225,6 +235,7 @@ public class Listeners extends ListenerAdapter {
         }
     }
 
+    @Override
     public void onGuildLeave(@Nonnull GuildLeaveEvent event) {
         try {
             if (!ready) return;
@@ -235,8 +246,8 @@ public class Listeners extends ListenerAdapter {
         }
     }
 
-
     //Guild Update Events
+    @Override
     public void onGuildUpdateName(@Nonnull GuildUpdateNameEvent event) {
         try {
             if (!ready) return;
@@ -246,26 +257,31 @@ public class Listeners extends ListenerAdapter {
         }
     }
 
-
     //Guild Member Events
+    @Override
     public void onGuildMemberJoin(@Nonnull GuildMemberJoinEvent event) {
         try {
             if (!ready) return;
-            // Welcome
-            new WelcomeListener().welcome(event);
 
-            // Autorole
-            new AutoroleAssign().onGuildMemberJoin(event);
-
-            // Exclusive role
-            new Roles().exclusive(event);
+            welcomeListener.welcome(event); // Welcome
+            autoroleAssign.onGuildMemberJoin(event); // Autorole
+            roles.exclusive(event); // Exclusive role
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    @Override
+    public void onGuildMemberRoleAdd(@Nonnull GuildMemberRoleAddEvent event) {
+        try {
+            //new Roles().categories(event);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     //Guild Voice Events
+    @Override
     public void onGuildVoiceJoin(@Nonnull GuildVoiceJoinEvent event) {
         try {
             if (!ready) return;
@@ -275,6 +291,7 @@ public class Listeners extends ListenerAdapter {
         }
     }
 
+    @Override
     public void onGuildVoiceMove(@Nonnull GuildVoiceMoveEvent event) {
         try {
             if (!ready) return;
@@ -285,6 +302,7 @@ public class Listeners extends ListenerAdapter {
         }
     }
 
+    @Override
     public void onGuildVoiceLeave(@Nonnull GuildVoiceLeaveEvent event) {
         try {
             if (!ready) return;
@@ -294,6 +312,7 @@ public class Listeners extends ListenerAdapter {
         }
     }
 
+    @Override
     public void onGuildVoiceMute(@Nonnull GuildVoiceMuteEvent event) {
         try {
             if (!ready) return;
