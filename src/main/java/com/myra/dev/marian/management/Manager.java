@@ -27,6 +27,7 @@ import com.myra.dev.marian.commands.general.information.InformationUser;
 import com.myra.dev.marian.commands.help.*;
 import com.myra.dev.marian.commands.leveling.Background;
 import com.myra.dev.marian.commands.leveling.Rank;
+import com.myra.dev.marian.commands.leveling.Time;
 import com.myra.dev.marian.commands.leveling.administrator.LevelingChannel;
 import com.myra.dev.marian.commands.leveling.administrator.LevelingHelp;
 import com.myra.dev.marian.commands.leveling.administrator.LevelingSet;
@@ -146,6 +147,7 @@ public class Manager {
 
                 new Rank(),
                 new Background(),
+                new Time(),
                 new Leaderboard(),
                 // Economy
                 new EconomyHelp(),
