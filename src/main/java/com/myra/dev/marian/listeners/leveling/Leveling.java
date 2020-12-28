@@ -2,6 +2,7 @@ package com.myra.dev.marian.listeners.leveling;
 
 import com.myra.dev.marian.database.allMethods.Database;
 import com.myra.dev.marian.database.allMethods.GetMember;
+import com.myra.dev.marian.database.documents.LevelingRolesDocument;
 import com.myra.dev.marian.utilities.Graphic;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.entities.Guild;
@@ -17,6 +18,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public class Leveling {
 
@@ -100,38 +105,40 @@ public class Leveling {
     }
 
     public void levelingRoles(Guild guild, Member member, GetMember dbMember) {
-        final Document levelingRoles = new Database(guild).getNested("leveling").get("roles", Document.class); // Get leveling roles
+        final Document levelingRolesDocument = new Database(guild).getNested("leveling").get("roles", Document.class); // Get leveling roles
+
+
+        List<LevelingRolesDocument> levelingRoles = new ArrayList<>();
+
+        levelingRolesDocument.keySet().forEach(key -> {
+            Document levelingRole = levelingRolesDocument.get(key, Document.class);
+
+            LevelingRolesDocument rolesDocument = new LevelingRolesDocument(levelingRole);
+            levelingRoles.add(rolesDocument);
+        });
+
+        Collections.sort(levelingRoles, Comparator.comparing(LevelingRolesDocument::getLevel)); // Sort list by level
+
 
         // For each role
-        for (String key : levelingRoles.keySet()) {
-            final Document levelingRole = levelingRoles.get(key, Document.class); // Get leveling role
+        levelingRoles.forEach(levelingRole -> {
 
-            final Role role = guild.getRoleById(levelingRole.getString("role")); // Get leveling role to add
-            final String removeRaw = levelingRole.getString("remove"); // Get role to remove
+            final Role role = guild.getRoleById(levelingRole.getRole()); // Get leveling role to add
+            final String removeRaw = levelingRole.getRemove(); // Get role to remove
 
-            // Member's level is too low
-            if (levelingRole.getInteger("level") > dbMember.getInteger("level")) {
-                // Member has this role
-                if (member.getRoles().contains(role)) {
-                    guild.removeRoleFromMember(member, role).queue(); // Remove role from member
-                }
-                // Role to remove is set
+            // Member can get the role
+            if (dbMember.getInteger("level") >= levelingRole.getLevel()) {
+                guild.addRoleToMember(member, role).queue();  // Add role
+
+                // Remove role
                 if (!removeRaw.equals("not set")) {
-                    final Role remove = guild.getRoleById(removeRaw); // Get role to remove
-                    guild.addRoleToMember(member, remove).queue(); // Add role to member
+                    final Role remove = guild.getRoleById(removeRaw); // Get role
+                    guild.removeRoleFromMember(member, remove).queue(); // Remove role
                 }
             }
-            // Member get the roles
-            else {
-                guild.addRoleToMember(member, role).queue(); // Add role to member
-
-                // Leveling role to remove
-                if (!levelingRole.getString("remove").equals("not set")) { // Check if role is set
-                    final Role remove = guild.getRoleById(levelingRole.getString("remove")); // Get role
-                    guild.removeRoleFromMember(member, remove).queue(); // Remove role from member
-                }
-            }
-        }
+            // Member can't get the role
+            else guild.removeRoleFromMember(member, role).queue(); // Remove role
+        });
     }
 
     //return level
