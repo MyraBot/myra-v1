@@ -3,10 +3,8 @@ package com.myra.dev.marian.commands.general.information;
 import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
-import com.myra.dev.marian.utilities.CustomEmote;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -55,10 +53,10 @@ public class InformationUser implements Command {
         //users status
         OnlineStatus status = user.getOnlineStatus();
         String StringStatus = status.toString()
-                .replace("OFFLINE", utilities.getEmote(ctx.getEvent().getJDA(), CustomEmote.offline).getAsMention() + " │ offline")
-                .replace("IDLE", utilities.getEmote(ctx.getEvent().getJDA(), CustomEmote.idle).getAsMention() + " │ idle")
-                .replace("DO_NOT_DISTURB", utilities.getEmote(ctx.getEvent().getJDA(), CustomEmote.doNotDisturb).getAsMention() + " │ do not distrub")
-                .replace("ONLINE", utilities.getEmote(ctx.getEvent().getJDA(), CustomEmote.online).getAsMention() + " │ online");
+                .replace("OFFLINE", utilities.getEmote("offline").getAsMention() + " │ offline")
+                .replace("IDLE", utilities.getEmote("idle").getAsMention() + " │ idle")
+                .replace("DO_NOT_DISTURB", utilities.getEmote("doNotDisturb").getAsMention() + " │ do not distrub")
+                .replace("ONLINE", utilities.getEmote("online").getAsMention() + " │ online");
         //badges
         String badges = getBadges(user, utilities);
         /**
@@ -83,7 +81,7 @@ public class InformationUser implements Command {
         userInformation.addField("\uD83D\uDCC5 │ joined server", user.getTimeJoined().atZoneSameInstant(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("dd.MM.yyyy , hh:mm")), true);
         //booster
         if (ctx.getGuild().getBoosters().contains(user))
-            userInformation.addField(utilities.getEmote(ctx.getEvent().getJDA(), CustomEmote.nitroBoost) + " │ is boosting", "since: " + user.getTimeBoosted().atZoneSameInstant(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("dd.MM.yyyy , hh:mm")), true);
+            userInformation.addField(utilities.getEmote("nitroBoost") + " │ is boosting", "since: " + user.getTimeBoosted().atZoneSameInstant(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("dd.MM.yyyy , hh:mm")), true);
         //permissions
         if (user.hasPermission(Permission.ADMINISTRATOR)) {
             userInformation.addField("\uD83D\uDD11 │ Permissions", "Administrator", false);
@@ -98,42 +96,33 @@ public class InformationUser implements Command {
     //return badges
     private String getBadges(Member user, Utilities utilities) {
         final Utilities utils = Utilities.getUtils();
-        final JDA jda = user.getJDA();
+        final String flags = user.getUser().getFlags().toString();
+
         String badges = "";
         //bug hunter
-        if (user.getUser().getFlags().toString().contains("BUG_HUNTER_LEVEL_1"))
-            badges += utils.getEmote(jda, CustomEmote.bugHunter).getAsMention() + " ";
+        if (flags.contains("BUG_HUNTER_LEVEL_1")) badges += utils.getEmote("bugHunter").getAsMention() + " ";
         //bug hunter level 2
-        if (user.getUser().getFlags().toString().contains("BUG_HUNTER_LEVEL_2"))
-            badges += utils.getEmote(jda, CustomEmote.bugHunterLvl2).getAsMention() + " ";
-        if (user.getUser().getFlags().toString().contains("EARLY_SUPPORTER")) {
+        if (flags.contains("BUG_HUNTER_LEVEL_2")) badges += utils.getEmote("bugHunterLvl2").getAsMention() + " ";
+        if (flags.contains("EARLY_SUPPORTER")) {
         }
-        if (user.getUser().getFlags().toString().contains("HYPESQUAD")) {
+        if (flags.contains("HYPESQUAD")) {
         }
         //hypeSquad balance
-        if (user.getUser().getFlags().toString().contains("HYPESQUAD_BALANCE"))
-            badges += utils.getEmote(jda, CustomEmote.balance).getAsMention() + " ";
+        if (flags.contains("HYPESQUAD_BALANCE")) badges += utils.getEmote("balance").getAsMention() + " ";
         //hypeSquad bravery
-        if (user.getUser().getFlags().toString().contains("HYPESQUAD_BRAVERY"))
-            badges += utils.getEmote(jda, CustomEmote.bravery).getAsMention() + " ";
+        if (flags.contains("HYPESQUAD_BRAVERY")) badges += utils.getEmote("bravery").getAsMention() + " ";
         //hypeSquad brilliance
-        if (user.getUser().getFlags().toString().contains("HYPESQUAD_BRILLIANCE"))
-            badges += utils.getEmote(jda, CustomEmote.brilliance).getAsMention() + " ";
-        if (user.getUser().getFlags().toString().contains("PARTNER")) {
-            badges += utils.getEmote(jda, CustomEmote.partner).getAsMention() + " ";
+        if (flags.contains("HYPESQUAD_BRILLIANCE")) badges += utils.getEmote("brilliance").getAsMention() + " ";
+        if (flags.contains("PARTNER")) badges += utils.getEmote("partner").getAsMention() + " ";
+        if (flags.contains("STAFF")) badges += utils.getEmote("staff").getAsMention() + " ";
+        if (flags.contains("SYSTEM")) {
         }
-        if (user.getUser().getFlags().toString().contains("STAFF")) {
-            badges += utils.getEmote(jda, CustomEmote.staff).getAsMention() + " ";
+        if (flags.contains("UNKNOWN")) {
         }
-        if (user.getUser().getFlags().toString().contains("SYSTEM")) {
+        if (flags.contains("VERIFIED_BOT")) {
         }
-        if (user.getUser().getFlags().toString().contains("UNKNOWN")) {
-        }
-        if (user.getUser().getFlags().toString().contains("VERIFIED_BOT")) {
-        }
-        if (user.getUser().getFlags().toString().contains("VERIFIED_DEVELOPER")) {
-            badges += utils.getEmote(jda, CustomEmote.verifiedDeveloper).getAsMention() + " ";
-        }
+        if (flags.contains("VERIFIED_DEVELOPER")) badges += utils.getEmote("verifiedDeveloper").getAsMention() + " ";
+
         return badges;
     }
 }

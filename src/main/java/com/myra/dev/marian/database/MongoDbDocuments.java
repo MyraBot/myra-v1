@@ -23,7 +23,7 @@ public class MongoDbDocuments {
             return; // In database is already a guild document
         // Economy
         Document economy = new Document()
-                .append("currency", Utilities.getUtils().getEmote(guild.getJDA(), CustomEmote.coin).getAsMention())
+                .append("currency", Utilities.getUtils().getEmote("coin").getAsMention())
                 .append("shop", new Document());
         // Leveling
         Document levelingDocument = new Document()

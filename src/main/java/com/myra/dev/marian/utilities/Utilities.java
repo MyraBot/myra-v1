@@ -1,5 +1,6 @@
 package com.myra.dev.marian.utilities;
 
+import com.myra.dev.marian.Bot;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
@@ -41,12 +42,14 @@ public class Utilities {
     public final String topGgKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjcxODQ0NDcwOTQ0NTYzMjEyMiIsImJvdCI6dHJ1ZSwiaWF0IjoxNjA0MzMwMTg3fQ.-zX8YHLdiH9w6pmDceN0fHDjTAJd9FbDiNXM2sftoA4";
 
     /**
-     * @param emote The name of the emote.
+     * @param name The name of the emote.
      * @return Returns an emote from Myra's Server.
      */
-    public Emote getEmote(JDA jda, CustomEmote emote) {
-        if (jda.getGuildById(Config.myraServer).getEmotesByName(emote.name(), true).isEmpty()) return null;
-        return jda.getGuildById(Config.myraServer).getEmotesByName(emote.name(), true).get(0);
+    public Emote getEmote(String name) {
+        final Guild guild = Bot.shardManager.getGuildById(Config.myraServer);
+
+        if (guild.getEmotesByName(name, true).isEmpty()) return null;
+        return guild.getEmotesByName(name, true).get(0);
     }
 
     /**

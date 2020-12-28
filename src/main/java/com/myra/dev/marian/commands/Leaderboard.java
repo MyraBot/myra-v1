@@ -34,9 +34,9 @@ public class Leaderboard implements Command {
         ctx.getChannel().sendMessage(leaderboard.build()).queue(message -> {
             // Add reactions
             message.addReaction("\uD83C\uDFC6").queue(); // Add level emoji
-            message.addReaction(Utilities.getUtils().getEmote(ctx.getEvent().getJDA(), CustomEmote.coin)).queue(); // Add balance emote
+            message.addReaction(Utilities.getUtils().getEmote("coin")).queue(); // Add balance emote
 
-            final Emote coin = Utilities.getUtils().getEmote(ctx.getEvent().getJDA(), CustomEmote.coin); // Get coin emote
+            final Emote coin = Utilities.getUtils().getEmote("coin"); // Get coin emote
             MessageReaction.add(ctx.getGuild(), "leaderboard", message, ctx.getAuthor(),true, "\uD83C\uDFC6", coin.getId()); // Add message to reactions
         });
     }
@@ -47,7 +47,7 @@ public class Leaderboard implements Command {
         // If reaction is emote
         if (event.getReactionEmote().isEmote()) {
             // Reactions is coin
-            if (event.getReactionEmote().getEmote().equals(Utilities.getUtils().getEmote(event.getJDA(), CustomEmote.coin))) {
+            if (event.getReactionEmote().getEmote().equals(Utilities.getUtils().getEmote("coin"))) {
                 //create embed
                 EmbedBuilder leaderboard = new EmbedBuilder()
                         .setAuthor(event.getGuild().getName() + "'s leaderboard", null, event.getGuild().getIconUrl())
