@@ -15,12 +15,11 @@ public class VoiceCall {
     //              Guild         User   start time
     private static HashMap<String, HashMap<String, Long>> activeCalls = new HashMap<>(); // Create hashmap for tracking calls
 
-    private final Leveling leveling = new Leveling();
-
     public void startXpGain(Member member) {
         final Guild guild = member.getGuild(); // Get guild
         final GuildVoiceState voiceState = member.getVoiceState(); // Get members voice state
         if (voiceState.isMuted()) return; // Member is muted
+        if (voiceState.getChannel() == null) return; // Member isn't in a voice call anymore
 
         int size = (int) voiceState.getChannel().getMembers().stream().filter(vcMember -> !vcMember.getUser().isBot()).count(); // Get amount of members in the voice call (without bots)
         if (size <= 1) return; // Member is alone in the voice call
@@ -77,6 +76,6 @@ public class VoiceCall {
     }
 
     private int getXp(long millis) {
-        return (int) ((millis / 5) * 2);
+        return (int) ((millis / 5000) * 2);
     }
 }
