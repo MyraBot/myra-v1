@@ -1,6 +1,7 @@
 package com.myra.dev.marian.database;
 
 import com.mongodb.client.MongoCursor;
+import com.myra.dev.marian.listeners.leveling.Leveling;
 import com.myra.dev.marian.management.Listeners;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.ReadyEvent;
@@ -11,6 +12,7 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 
 import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.ne;
 
 public class MongoDbUpdate {
     //database
@@ -126,13 +128,12 @@ public class MongoDbUpdate {
             );
         }
   */
-        /*
-        // Member update
+/*        // Member update
         final MongoCursor<Document> iterator = mongoDb.getCollection("users").find().iterator();
 
         while (iterator.hasNext()) {
             final Document document = iterator.next(); // Get next document
-            mongoDb.getCollection("usersBackup").insertOne(document); // Make a backup
+            //mongoDb.getCollection("usersBackup").insertOne(document); // Make a backup
 
             Document updatedUserDocument = new Document() // Create a new user document
                     .append("userId", document.getString("userId"))
@@ -146,11 +147,9 @@ public class MongoDbUpdate {
                 if (key.equals("birthday")) continue;
                 if (key.equals("achievements")) continue;
 
-                final Document guildDocument = document.get(key, Document.class); // Get guild document
-
                 final Document updatedGuildDocument = new Document() // Create a new guild document
                         .append("level", guildDocument.getInteger("level"))
-                        .append("xp", guildDocument.getInteger("xp"))
+                        .append("xp", xp)
                         .append("messages", guildDocument.getInteger("messages"))
                         .append("voiceCallTime", guildDocument.getLong("voiceCallTime"))
                         .append("balance", guildDocument.getInteger("balance"))
@@ -161,9 +160,7 @@ public class MongoDbUpdate {
                 updatedUserDocument.append(key, updatedGuildDocument);
             }
             mongoDb.getCollection("users").replaceOne(document, updatedUserDocument);
-        }
-
-         */
+        }*/
     }
 
     //add guild document
