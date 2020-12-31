@@ -46,6 +46,7 @@ import com.myra.dev.marian.commands.moderation.mute.Mute;
 import com.myra.dev.marian.commands.moderation.mute.MuteRole;
 import com.myra.dev.marian.commands.moderation.mute.Tempmute;
 import com.myra.dev.marian.commands.moderation.mute.Unmute;
+import com.myra.dev.marian.commands.music.commands.*;
 import com.myra.dev.marian.listeners.GlobalChat;
 import com.myra.dev.marian.listeners.Someone;
 import com.myra.dev.marian.listeners.autorole.AutoRoleSet;
@@ -75,6 +76,7 @@ import com.myra.dev.marian.management.commands.CommandSubscribe;
 import com.myra.dev.marian.management.commands.DefaultCommandService;
 import com.myra.dev.marian.management.listeners.DefaultListenerService;
 import com.myra.dev.marian.management.listeners.ListenerService;
+import com.myra.dev.marian.marian.Shutdown;
 import com.myra.dev.marian.marian.*;
 
 import java.util.Map;
@@ -82,9 +84,9 @@ import java.util.Map;
 public class Manager {
     public static enum type {STRING, INTEGER, BOOLEAN}
 
-    final static Leveling LEVELING = new Leveling();
-    final static CommandService COMMAND_SERVICE = new DefaultCommandService();
-    final static ListenerService LISTENER_SERVICE = new DefaultListenerService();
+    public final static Leveling LEVELING = new Leveling();
+    public final static CommandService COMMAND_SERVICE = new DefaultCommandService();
+    public final static ListenerService LISTENER_SERVICE = new DefaultListenerService();
 
     public static Map<Command, CommandSubscribe> getCommands() {
         return COMMAND_SERVICE.getCommands();
@@ -99,6 +101,7 @@ public class Manager {
         // Register commands
         COMMAND_SERVICE.register(
                 // Marian
+                new Dm(),
                 new TestCommand(),
                 new SetGuildPremium(),
                 new MariansDiscordEmbeds(),
@@ -192,7 +195,7 @@ public class Manager {
                 new Kick(),
                 new Nick(),
                 // Music
-                /*new MusicHelp(),
+/*                new MusicHelp(),
                 new MusicJoin(),
                 new MusicLeave(),
                 new MusicPlay(),
