@@ -76,6 +76,8 @@ public class VoiceCall {
     }
 
     private int getXp(long millis) {
-        return (int) ((millis / 5000) * 2);
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(millis);
+
+        return (int) (minutes / 5) * 2;
     }
 }
