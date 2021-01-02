@@ -14,6 +14,7 @@ import com.myra.dev.marian.commands.moderation.mute.MutePermissions;
 import com.myra.dev.marian.commands.moderation.mute.Tempmute;
 import com.myra.dev.marian.commands.music.commands.MusicController;
 import com.myra.dev.marian.commands.music.commands.MusicPlay;
+import com.myra.dev.marian.commands.music.commands.MusicVoteListener;
 import com.myra.dev.marian.database.MongoDbUpdate;
 import com.myra.dev.marian.listeners.GlobalChat;
 import com.myra.dev.marian.listeners.ReactionRoles;
@@ -187,9 +188,9 @@ public class Listeners extends ListenerAdapter {
             // Leveling
             leaderboard.switchLeaderboard(event); // Switch what leaderboard shows
             // Economy
-            background.confirm(event);
             blackJack.reaction(event); // Blackjack
             // Music
+            new MusicVoteListener().onVoteAdd(event);
             new MusicPlay().guildMessageReactionAddEvent(event);
             new MusicController().guildMessageReactionAddEvent(event);
         } catch (Exception e) {

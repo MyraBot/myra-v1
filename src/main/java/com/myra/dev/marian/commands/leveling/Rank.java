@@ -15,8 +15,10 @@ import net.dv8tion.jda.api.entities.User;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.Buffer;
 
 @CommandSubscribe(
         command = "rank",
@@ -55,16 +57,10 @@ public class Rank implements Command {
             Utilities.getUtils().error(ctx.getChannel(), "rank", "\uD83C\uDFC5", member.getEffectiveName() + " is a bot", "Bots aren't allowed to participate in the ranking competition", ctx.getAuthor().getEffectiveAvatarUrl());
             return;
         }
-        //get variables
-        GetMember getMember = new Database(ctx.getGuild()).getMembers().getMember(member);
+        final GetMember getMember = new Database(member.getGuild()).getMembers().getMember(member); // Get member in database
 
-        String level = String.valueOf(getMember.getLevel());
-        int xp = getMember.getXp();
-        int requiredXpForNextLevel = Manager.getLeveling().requiredXpForNextLevel(ctx.getGuild(), member);
-        int rank = getMember.getRank();
-        // Get rank background
-        BufferedImage background;
         String backgroundUrl = getMember.getString("rankBackground");
+        BufferedImage background;
         // No background set
         if (backgroundUrl.equals("default")) {
             background = ImageIO.read(this.getClass().getClassLoader().getResourceAsStream("defaultRank.png"));
@@ -73,6 +69,27 @@ public class Rank implements Command {
         else {
             background = ImageIO.read(new URL(backgroundUrl));
         }
+
+        final String level = String.valueOf(getMember.getLevel()); // Get level
+        final BufferedImage rankCard = rankCard(member, background); // Get rank card
+
+// Send rank card
+        ctx.getChannel()
+                .sendMessage("> " + member.getAsMention() + "**, you're level " + level + "**")
+                .addFile(Graphic.getInstance().toInputStream(rankCard), member.getUser().getName().toLowerCase() + "_rank.png")
+                .queue();
+    }
+
+    public BufferedImage rankCard(Member member, BufferedImage background) throws IOException, FontFormatException {
+        final GetMember getMember = new Database(member.getGuild()).getMembers().getMember(member); // Get member in database
+
+        // Get variables
+        String level = String.valueOf(getMember.getLevel());
+        int xp = getMember.getXp();
+        int requiredXpForNextLevel = Manager.getLeveling().requiredXpForNextLevel(member.getGuild(), member);
+        int rank = getMember.getRank();
+        // Get rank background
+        BufferedImage rankCard = background;
 
         Graphic graphic = Graphic.getInstance();
 
@@ -87,10 +104,6 @@ public class Rank implements Command {
         //load font
         InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("default.ttf");
         Font font = Font.createFont(Font.TRUETYPE_FONT, inputStream);
-/*        //draw box over background
-        RoundRectangle2D roundedRectangle = new RoundRectangle2D.Float(5, 5, 340, 90, 15, 15);
-        graphics2D.setColor(new Color(200, 255, 255, 50));
-        graphics2D.fill(roundedRectangle);*/
         //draw avatar
         graphics2D.drawImage(
                 avatar,
@@ -154,10 +167,6 @@ public class Rank implements Command {
                 graphic.textCenter(Graphic.axis.X, "rank:", font, background) + 85,
                 graphic.textCenter(Graphic.axis.Y, "rank:", font, background) + 25
         );
-// Send rank card
-        ctx.getChannel()
-                .sendMessage("> " + member.getAsMention() + "**, you're level " + level + "**")
-                .addFile(graphic.toInputStream(background), member.getUser().getName().toLowerCase() + "_rank.png")
-                .queue();
+        return background;
     }
 }

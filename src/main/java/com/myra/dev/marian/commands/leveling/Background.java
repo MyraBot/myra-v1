@@ -1,106 +1,125 @@
 package com.myra.dev.marian.commands.leveling;
 
 import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.database.allMethods.GetMember;
 import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
 import com.myra.dev.marian.utilities.EmbedMessage;
-import com.myra.dev.marian.utilities.Graphic;
-import com.myra.dev.marian.utilities.MessageReaction;
+import com.myra.dev.marian.utilities.Img;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.InputStream;
+import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 @CommandSubscribe(
         name = "edit rank"
 )
 public class Background implements Command {
-    // TODO event waiter
+    private final String[] emojis = {
+            "\u2705", // Checkmark
+            "\uD83D\uDEAB" // Barrier
+    };
 
     @Override
     public void execute(CommandContext ctx) throws Exception {
-        // Get utilities
-        Utilities utilities = Utilities.getUtils();
-        // Usage
+        // Command usage
         if (ctx.getArguments().length != 1) {
             EmbedBuilder usage = new EmbedBuilder()
                     .setAuthor("edit rank", null, ctx.getAuthor().getEffectiveAvatarUrl())
-                    .setColor(utilities.gray)
+                    .setColor(Utilities.getUtils().gray)
                     .addField("`" + ctx.getPrefix() + "edit rank <url>`", "\uD83D\uDDBC │ Set a custom rank background", false);
             ctx.getChannel().sendMessage(usage.build()).queue();
             return;
         }
-        // Get database
-        Database db = new Database(ctx.getGuild());
-        // Check if you have enough money
+        Database db = new Database(ctx.getGuild()); // Get database
+        // Not enough money
         if (db.getMembers().getMember(ctx.getMember()).getBalance() < 10000) {
-            utilities.error(ctx.getChannel(), "edit rank", "\uD83D\uDDBC", "Not enough money", "You need 10 000" + db.getNested("economy").getString("currency"), ctx.getAuthor().getEffectiveAvatarUrl());
+            Utilities.getUtils().error(ctx.getChannel(), "edit rank", "\uD83D\uDDBC", "Not enough money", "You need 10 000" + db.getNested("economy").getString("currency"), ctx.getAuthor().getEffectiveAvatarUrl());
             return;
         }
         // Check if argument is an image
         try {
-            ImageIO.read(new URL(ctx.getArguments()[0]));
-        } catch (Exception e) {
-            utilities.error(ctx.getChannel(), "edit rank", "❓", "Invalid image", e.getMessage(), ctx.getAuthor().getEffectiveAvatarUrl());
+            ImageIO.read(new URL(ctx.getArguments()[0])); // Argument is an image
+        }
+        // Argument isn't an image
+        catch (Exception e) {
+            Utilities.getUtils().error(ctx.getChannel(), "edit rank", "\uD83D\uDDBC", "Invalid image", e.getMessage(), ctx.getAuthor().getEffectiveAvatarUrl());
             return;
         }
-        // Get image from Url
-        BufferedImage background = ImageIO.read(new URL(ctx.getArguments()[0]));
-        // Resize image
-        background = Graphic.getInstance().resizeImage(background, 350, 100);
-        // Parse to InputStream
-        InputStream backgroundFile = Graphic.getInstance().toInputStream(background);
-        // Success
-        EmbedBuilder success = new EmbedBuilder()
+
+        final BufferedImage backgroundRaw = ImageIO.read(new URL(ctx.getArguments()[0])); // Get image from Url
+
+        final BufferedImage rankBackground = new Img(backgroundRaw).resize(350, 100).getBufferedImage(); // Resize background
+        final Img rank = new Img(new Rank().rankCard(ctx.getMember(), rankBackground)); // Get rank card
+
+        final Img background = new Img(backgroundRaw).resize(350, 100); // Resize background
+
+        ctx.getChannel().sendFile(background.getInputStream(), "background.png").queue();
+        ctx.getChannel().sendFile(rank.getInputStream(), "rank.png").queue();
+        ctx.getChannel().sendFile(background.getInputStream(), "background.png").queue();
+
+        // Confirmation
+        EmbedBuilder confirmation = new EmbedBuilder()
                 .setAuthor("edit rank", null, ctx.getAuthor().getEffectiveAvatarUrl())
-                .setColor(utilities.blue)
-                .addField("\uD83C\uDFC1 │ New rank background", "Do you want to buy this background for 10000" + db.getNested("economy").getString("currency"), false)
-                .setImage("attachment://background.png");
-        Message message = ctx.getChannel().sendFile(backgroundFile, "background.png").embed(success.build()).complete();
-        // Add reactions to message
-        message.addReaction("\u2705").queue(); // Checkmark
-        message.addReaction("\uD83D\uDEAB").queue(); // Barrier
+                .setColor(Utilities.getUtils().blue)
+                .setDescription("Do you want to buy this background for 10000" + db.getNested("economy").getString("currency"))
+                .setImage("attachment://rank.png");
+        ctx.getChannel().sendFile(rank.getInputStream(), "rank.png").embed(confirmation.build()).queue(message -> {
+            // Add reactions to message
+            message.addReaction(emojis[0]).queue(); // Checkmark
+            message.addReaction(emojis[1]).queue(); // Barrier
 
-        MessageReaction.add(ctx.getGuild(), "edit rank", message, ctx.getAuthor(), true, "\u2705", "\uD83D\uDEAB");
-    }
+            ctx.waiter().waitForEvent(
+                    GuildMessageReactionAddEvent.class,
+                    e -> !e.getUser().isBot()
+                            && e.getMember() == ctx.getMember()
+                            && e.getMessageIdLong() == message.getIdLong()
+                            && Arrays.stream(emojis).anyMatch(e.getReactionEmote().getEmoji()::equals),
+                    e -> { // On event
+                        final String reaction = e.getReactionEmote().getEmoji(); // Get reaction emoji
 
+                        // Checkmark
+                        if (reaction.equals(emojis[0])) {
+                            final GetMember dbMember = db.getMembers().getMember(e.getMember()); // Get member in database
+                            dbMember.setBalance(dbMember.getBalance() - 10000); // Update balance
+                            // Send success
+                            EmbedBuilder success = new EmbedBuilder()
+                                    .setAuthor("edit rank", null, ctx.getAuthor().getEffectiveAvatarUrl())
+                                    .setColor(Utilities.getUtils().blue)
+                                    .setDescription("You bought a new rank background:")
+                                    .setImage("attachment://background.png");
+                            try {
+                                e.getChannel().sendFile(background.getInputStream(), "background.png").embed(success.build()).queue(msg -> {
+                                    dbMember.setString("rankBackground", msg.getEmbeds().get(0).getImage().getUrl()); // Save new image in database
+                                });
+                            } catch (IOException ioException) {
+                                ioException.printStackTrace();
+                            }
+                        }
 
-    public void confirm(GuildMessageReactionAddEvent event) {
-        // Check for right reaction
-        if (!MessageReaction.check(event, "edit rank", true)) return;
-
-        // Reaction emoji: "Checkmark"
-        if (event.getReactionEmote().getEmoji().equals("\u2705")) {
-            // Get database
-            Database db = new Database(event.getGuild());
-            // Update balance
-            db.getMembers().getMember(event.getMember()).setBalance(db.getMembers().getMember(event.getMember()).getBalance() - 10000);
-            // Send success
-            event.retrieveMessage().queue(message -> {
-                EmbedMessage.Success success = new EmbedMessage.Success()
-                        .setCommand("edit rank")
-                        .setEmoji("\uD83D\uDDBC")
-                        .setMessage("You bought a new rank background:")
-                        .setImage(message.getEmbeds().get(0).getImage().getUrl());
-                success.send(event.getChannel());
-            });
-            // Save new image in database
-            db.getMembers().getMember(event.getMember()).setString("rankBackground", event.getChannel().retrieveMessageById(event.getMessageId()).complete().getEmbeds().get(0).getImage().getUrl());
-        }
-        // Reaction emoji: "Barrier"
-        else if (event.getReactionEmote().getEmoji().equals("\uD83D\uDEAB")) {
-            // Send success
-            EmbedBuilder success = new EmbedBuilder()
-                    .setAuthor("edit rank")
-                    .setColor(Utilities.getUtils().blue)
-                    .setDescription("Your purchase has been canceled");
-            event.getChannel().sendMessage(success.build()).queue();
-        }
+                        // Barrier
+                        else if (reaction.equals(emojis[1])) {
+                            // Send cancel success
+                            EmbedMessage.Success success = new EmbedMessage.Success()
+                                    .setCommand("edit rank")
+                                    .setEmoji("\uD83D\uDDBC")
+                                    .setAvatar(e.getUser().getEffectiveAvatarUrl())
+                                    .setMessage("Your purchase has been canceled");
+                            success.send(ctx.getChannel());
+                        }
+                    },
+                    30L, TimeUnit.SECONDS, // Timeout
+                    () -> { // On timeout
+                        message.clearReactions().queue(); // Clear reactions
+                    }
+            );
+        });
     }
 }
