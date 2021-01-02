@@ -35,11 +35,11 @@ public class InformationUser implements Command {
         //get given member
         else {
             //if user isn't in the guild
-            if (ctx.getGuild().getMember(Utilities.getUtils().getUser(ctx.getEvent(), ctx.getArguments()[0], "information user", "\uD83D\uDC64")) == null) {
+            if (utilities.getMember(ctx.getEvent(), ctx.getArguments()[0], "information user", "\uD83D\uDC64") == null) {
                 utilities.error(ctx.getChannel(), "information user", "\uD83D\uDC64", "No user found", "For this command the user has to be on this server", ctx.getAuthor().getEffectiveAvatarUrl());
                 return;
             }
-            user = ctx.getGuild().getMember(Utilities.getUtils().getUser(ctx.getEvent(), ctx.getArguments()[0], "information user", "\uD83D\uDC64"));
+            user = utilities.getMember(ctx.getEvent(), ctx.getArguments()[0], "information user", "\uD83D\uDC64");
         }
 
         List<Role> roles = user.getRoles();

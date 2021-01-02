@@ -3,8 +3,6 @@ package com.myra.dev.marian;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.myra.dev.marian.management.Listeners;
 import com.myra.dev.marian.utilities.ConsoleColours;
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.exceptions.RateLimitedException;
@@ -28,23 +26,34 @@ public class Bot {
     private final EventWaiter waiter = new EventWaiter();
 
     private Bot() throws LoginException, RateLimitedException {
-        DefaultShardManagerBuilder jda = DefaultShardManagerBuilder.create(
-                TOKEN,
-                // Enabled events
-                GatewayIntent.GUILD_MEMBERS,// Enabling events with members (Member join, leave, ...)
-                GatewayIntent.GUILD_MESSAGES, // Enabling message events (send, edit, delete, ...)
-                GatewayIntent.GUILD_MESSAGE_REACTIONS, // Reaction add remove bla bla
-                GatewayIntent.GUILD_VOICE_STATES,
-
-                GatewayIntent.GUILD_EMOJIS // Emote add/update/delete events. Also is needed for the CacheFlag
-        )
+        DefaultShardManagerBuilder jda = DefaultShardManagerBuilder.createDefault(TOKEN)
+                // Disable unnecessary intents
+                .disableIntents(
+                        GatewayIntent.GUILD_BANS,
+                        GatewayIntent.GUILD_EMOJIS,
+                        GatewayIntent.GUILD_WEBHOOKS,
+                        GatewayIntent.GUILD_INVITES,
+                        GatewayIntent.GUILD_PRESENCES,
+                        GatewayIntent.GUILD_MESSAGE_TYPING,
+                        GatewayIntent.DIRECT_MESSAGE_REACTIONS,
+                        GatewayIntent.DIRECT_MESSAGE_TYPING
+                )
+                .enableIntents(
+                        // Enabled events
+                        GatewayIntent.GUILD_MEMBERS,// Enabling events with members (Member join, leave, ...)
+                        GatewayIntent.GUILD_MESSAGES, // Enabling message events (send, edit, delete, ...)
+                        GatewayIntent.GUILD_MESSAGE_REACTIONS, // Reaction add remove bla bla
+                        GatewayIntent.GUILD_VOICE_STATES,
+                        GatewayIntent.GUILD_PRESENCES, // Is needed for the CLIENT_STATUS CacheFlag
+                        GatewayIntent.GUILD_EMOJIS // Emote add/update/delete events. Also is needed for the CacheFlag
+                )
                 .enableCache(
                         CacheFlag.EMOTE,
+                        CacheFlag.CLIENT_STATUS,
                         CacheFlag.VOICE_STATE
                 )
                 .disableCache(
                         CacheFlag.ACTIVITY,
-                        CacheFlag.CLIENT_STATUS,
                         CacheFlag.MEMBER_OVERRIDES,
                         CacheFlag.ROLE_TAGS
                 )
