@@ -8,6 +8,7 @@ import com.myra.dev.marian.utilities.Permissions;
 import com.myra.dev.marian.utilities.Resources;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Guild;
 
 @CommandSubscribe(
         name = "dashboard",
@@ -17,6 +18,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 public class Dashboard implements Command {
     @Override
     public void execute(CommandContext ctx) throws Exception {
+        int count = ctx.getEvent().getJDA().getGuilds().stream().mapToInt(Guild::getMemberCount).sum();
         final int memberCount = ctx.getEvent().getJDA().getUsers().size();
         final long uptime = System.currentTimeMillis() - Config.startUp;
         Resources resources = new Resources();
@@ -32,7 +34,7 @@ public class Dashboard implements Command {
                 .addField("Current running threads", resources.getRunningThreads(), true)
                 .addField("\uD83D\uDDC2 │ Shards", String.valueOf(ctx.getEvent().getJDA().getShardManager().getShardsTotal()), true)
                 .addField("\uD83D\uDDDC │ Guilds", String.valueOf(ctx.getEvent().getJDA().getGuilds().size()), true)
-                .addField("\uD83D\uDC65 │Users", String.valueOf(memberCount), true)
+                .addField("\uD83D\uDC65 │Users", String.valueOf(count), true)
                 .addField("votes", "NULL", true);
         ctx.getChannel().sendMessage(dashboard.build()).queue();
     }
