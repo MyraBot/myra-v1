@@ -72,9 +72,7 @@ public class Listeners extends ListenerAdapter {
     private final NotificationsList notificationsList = new NotificationsList();
     private final ReactionRoles reactionRoles = new ReactionRoles();
     private final InformationServer informationServer = new InformationServer();
-    private final Background background = new Background();
     private final BlackJack blackJack = new BlackJack();
-    private final Leaderboard leaderboard = new Leaderboard();
     //Guild Member Events
     private final WelcomeListener welcomeListener = new WelcomeListener();
     private final AutoroleAssign autoroleAssign = new AutoroleAssign();
@@ -185,8 +183,6 @@ public class Listeners extends ListenerAdapter {
             reactionRoles.reactionRoleAssign(event); // Reaction roles
             // Commands
             informationServer.guildMessageReactionAddEvent(event);
-            // Leveling
-            leaderboard.switchLeaderboard(event); // Switch what leaderboard shows
             // Economy
             blackJack.reaction(event); // Blackjack
             // Music
