@@ -1,6 +1,5 @@
 package com.myra.dev.marian.marian;
 
-import com.myra.dev.marian.Bot;
 import com.myra.dev.marian.utilities.Config;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.entities.Guild;
@@ -9,6 +8,7 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleAddEvent;
 
 import java.awt.*;
 import java.util.List;
@@ -22,7 +22,7 @@ public class Roles {
         final Guild guild = event.getJDA().getGuildById(Config.marianServer);
 
         unicorn(guild);
-        designer(guild);
+        //categories(guild);
     }
 
     /**
@@ -77,23 +77,39 @@ public class Roles {
         }
     }
 
-    private void designer(Guild guild) {
-        final Role DESIGNER = guild.getRoleById("775647035315322891");
+/*    private final List<String> special = Arrays.asList(
+            "715545225057140736", // Team
+            "732260877134331936", // First booster
+            "726813321797566484", // Server booster
+            "785170745797246987", // Premium
+            "784880312000970782", // Debugger
+            "775352717526171678", // Bug hunter
+            "714787219784597544", // Businessman
+            "769221560543477800", // Addict
+            "717078181408145459", // True gambler
+            "775647035315322891", // Designer
+            "775646920646983690", // Exclusive
+            "789415020378980383" // Explorer
+    );
 
-        final Role legend = guild.getRoleById("698884600654594108");
-        final Role god = guild.getRoleById("698884548783636500");
-        final Role veteran = guild.getRoleById("698884462460534835");
-        final Role advanced = guild.getRoleById("698884227059417128");
-        final Role experienced = guild.getRoleById("698883418070450177");
-        final Role designer = guild.getRoleById("698883364773429258");
-        final Role lil = guild.getRoleById("698883381966143568");
+    public void categories(Guild guild) {
+        guild.getMembers().forEach(member -> {
+            final List<Role> roles = member.getRoles(); // Get roles of member
 
-        Role[] designerRoles = {legend, god, veteran, advanced, experienced, designer, lil};
-
-        for (Member member : guild.getMembers()) {
-            if (Arrays.stream(designerRoles).anyMatch(member.getRoles()::contains)) {
-                guild.addRoleToMember(member, DESIGNER).queue();
+            if (roles.stream().anyMatch(role -> special.stream().anyMatch(special -> role.getId().equals(special)))) {
+                guild.addRoleToMember(member, guild.getRoleById("713701785100877874")).queue();
             }
-        }
+        });
     }
+
+    public void categories(GuildMemberRoleAddEvent event) {
+        if (!event.getGuild().getId().equals(Config.marianServer)) return;
+
+        final Member member = event.getMember(); // Get member
+        final List<Role> roles = member.getRoles(); // Get roles of member
+
+        if (roles.stream().anyMatch(role -> special.stream().anyMatch(special -> role.getId().equals(special)))) {
+            event.getGuild().addRoleToMember(member, event.getGuild().getRoleById("713701785100877874")).queue();
+        }
+    }*/
 }
