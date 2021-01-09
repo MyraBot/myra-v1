@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 public class ErrorCatch {
     // Errors
     private final String missingPermsMESSAGE_WRITE = "Cannot perform action due to a lack of Permission. Missing permission: MESSAGE_WRITE";
+    private final String missingPermsMESSAGE_EMBED = "Cannot perform action due to a lack of Permission. Missing permission: MESSAGE_EMBED_LINKS";
     private final String missingPermsVIEW_CHANNEL = "Cannot perform action due to a lack of Permission. Missing permission: VIEW_CHANNEL";
 
     public void catchError(Exception exception, GuildMessageReceivedEvent event) {
@@ -17,6 +18,9 @@ public class ErrorCatch {
         }
         // Missing permissions: MESSAGE_WRITE
         if (error.startsWith(missingPermsMESSAGE_WRITE)) {
+        }
+        else if (error.startsWith(missingPermsMESSAGE_EMBED)) {
+
         }
         // Missing permissions: VIEW_CHANNEL
         else if (error.equals(missingPermsVIEW_CHANNEL)) {
