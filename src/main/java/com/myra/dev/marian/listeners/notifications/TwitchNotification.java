@@ -43,6 +43,7 @@ public class TwitchNotification {
                         continue;
                     }
                     TextChannel channel = guild.getTextChannelById(channelRaw); // Get notifications channel
+                    if (channel == null) continue;
 
                     // For each streamer
                     for (String streamer : streamers) {
@@ -54,6 +55,7 @@ public class TwitchNotification {
                             continue;
                         }
 
+
                         // Streamer is offline
                         if (!stream.getBoolean("is_live")) continue;
 
@@ -62,20 +64,20 @@ public class TwitchNotification {
                         long publishedAtInMillis = date.toInstant().toEpochMilli(); // Get stream start in milliseconds
 
                         // Last twitch check was already made when the video came out
-                        if (publishedAtInMillis < MongoDb.getInstance().getCollection("config").find().first().getLong("twitch refresh"))
-                            continue;
+                        final Long lastCheck = MongoDb.getInstance().getCollection("config").find().first().getLong("twitch refresh");
+                        if (lastCheck >= publishedAtInMillis) continue;
 
                         // Get all values
                         final String id = stream.getString("id");
                         final String name = stream.getString("display_name"); // Get user name of streamer
                         final String title = stream.getString("title"); // Get stream title
                         final String thumbnail = stream.getString("thumbnail_url"); // Get profile picture
-                        final String preview = "https://static-cdn.jtvnw.net/previews-ttv/live_user_" + name + "-440x248.jpg";
+                        final String preview = String.format("https://static-cdn.jtvnw.net/previews-ttv/live_user_%s-440x248.jpg", name); // Get preview image
                         // Create embed
                         EmbedBuilder notification = new EmbedBuilder()
                                 .setAuthor(name, "https://www.twitch.tv/" + name, thumbnail)
                                 .setColor(Utilities.getUtils().blue)
-                                .setDescription(Utilities.getUtils().hyperlink(title, "https://www.twitch.tv/" + name) + "\n")
+                                .setDescription(Utilities.getUtils().hyperlink(title, String.format("https://www.twitch.tv/%s", name)) + "\n")
                                 .setThumbnail(thumbnail)
                                 .setImage(preview)
                                 .setTimestamp(date.toInstant());
@@ -83,7 +85,6 @@ public class TwitchNotification {
                         if (!stream.getString("game_id").equals("0")) {
                             notification.appendDescription(new Twitch().getGame(stream.getString("game_id"))); // Add game to notification
                         }
-                        assert channel != null;
                         channel.sendMessage(notification.build()).queue(); // Send stream notification
                     }
                 }
