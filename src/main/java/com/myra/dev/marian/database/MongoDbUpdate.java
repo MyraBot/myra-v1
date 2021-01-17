@@ -1,7 +1,5 @@
 package com.myra.dev.marian.database;
 
-import com.mongodb.client.MongoCursor;
-import com.myra.dev.marian.listeners.leveling.Leveling;
 import com.myra.dev.marian.management.Listeners;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.ReadyEvent;
@@ -12,7 +10,6 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 
 import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Filters.ne;
 
 public class MongoDbUpdate {
     //database
@@ -20,136 +17,127 @@ public class MongoDbUpdate {
 
     //update Database
     public void update(ReadyEvent event) throws Exception {
- /*     List<String> guildIds = new ArrayList<>();
-        for (Guild guild : event.getJDA().getGuilds()) {
-            guildIds.add(guild.getId());
-        }
+        //updateGuilds();
+        //updateUsers();
+    }
 
+    private void updateGuilds() {
         // Guild update
         for (Document doc : mongoDb.getCollection("guilds").find()) {
             // Make backup
-            //mongoDb.getCollection("backup").insertOne(doc);
+            mongoDb.getCollection("backup2").insertOne(doc);
 
             // Get variables
-            final String guildId = doc.getString("guildId");
-            final String guildName = doc.getString("guildName");
-            final String prefix = doc.getString("prefix");
-            final Document economy = (Document) doc.get("economy");
-            final Document leveling = (Document) doc.get("leveling");
-            final Document notifications = (Document) doc.get("notifications");
-            final String suggestionsChannel = doc.getString("suggestionsChannel");
-            final String logChannel = doc.getString("logChannel");
-            final String autoRole = doc.getString("autoRole");
-            final String muteRole = doc.getString("muteRole");
-            final Document welcome = (Document) doc.get("welcome");
-            final Document commands = (Document) doc.get("commands");
-            final Document listeners = (Document) doc.get("listeners");
+            final Document economyRaw = (Document) doc.get("economy");
+            final Document levelingRaw = (Document) doc.get("leveling");
+            final Document notificationsRaw = (Document) doc.get("notifications");
+            final Document welcomeRaw = (Document) doc.get("welcome");
+            final Document commandsRaw = (Document) doc.get("commands");
+            final Document listenersRaw = (Document) doc.get("listeners");
 
-            Document economyDocument = new Document()
-                    .append("currency", economy.getString("currency"))
-                    .append("shop", economy.get("shop"));
-            Document levelingDocument = new Document()
-                    .append("boost", 1)
-                    .append("roles", leveling.get("roles"))
-                    .append("channel", leveling.getString("channel"));
-            Document notificationDocument = new Document()
-                    .append("channel", notifications.getString("channel"))
-                    .append("twitch", notifications.getList("twitch", String.class))
-                    .append("youtube", notifications.getList("youtube", String.class));
-            Document welcomeNested = new Document()
-                    .append("welcomeChannel", welcome.getString("welcomeChannel"))
-                    .append("welcomeColour", welcome.getString("welcomeColour"))
-                    .append("welcomeImageBackground", welcome.getString("welcomeImageBackground"))
-                    .append("welcomeImageFont", welcome.getString("welcomeImageFont"))
-                    .append("welcomeEmbedMessage", welcome.getString("welcomeEmbedMessage"))
-                    .append("welcomeDirectMessage", welcome.getString("welcomeDirectMessage"));
-            Document commandsNested = new Document()
-                    .append("calculate", commands.getBoolean("calculate"))
-                    .append("avatar", commands.getBoolean("avatar"))
-                    .append("information", commands.getBoolean("information"))
-                    .append("reminder", commands.getBoolean("reminder"))
+            Document economy = new Document()
+                    .append("currency", economyRaw.getString("currency"))
+                    .append("shop", economyRaw.get("shop", Document.class));
+            Document leveling = new Document()
+                    .append("boost", levelingRaw.getInteger("boost"))
+                    .append("roles", levelingRaw.get("roles", Document.class))
+                    .append("channel", levelingRaw.getString("channel"));
+            Document notifications = new Document()
+                    .append("channel", notificationsRaw.getString("channel"))
+                    .append("twitchMessage", "not set")
+                    .append("twitch", notificationsRaw.getList("twitch", String.class))
+                    .append("youtubeMessage", "not set")
+                    .append("youtube", notificationsRaw.getList("youtube", String.class));
+            Document welcome = new Document()
+                    .append("welcomeChannel", welcomeRaw.getString("welcomeChannel"))
+                    .append("welcomeColour", welcomeRaw.getString("welcomeColour"))
+                    .append("welcomeImageBackground", welcomeRaw.getString("welcomeImageBackground"))
+                    .append("welcomeImageFont", welcomeRaw.getString("welcomeImageFont"))
+                    .append("welcomeEmbedMessage", welcomeRaw.getString("welcomeEmbedMessage"))
+                    .append("welcomeDirectMessage", welcomeRaw.getString("welcomeDirectMessage"));
+            Document commands = new Document()
+                    .append("calculate", commandsRaw.getBoolean("calculate"))
+                    .append("avatar", commandsRaw.getBoolean("avatar"))
+                    .append("information", commandsRaw.getBoolean("information"))
+                    .append("reminder", commandsRaw.getBoolean("reminder"))
 
-                    .append("rank", commands.getBoolean("rank"))
-                    .append("leaderboard", commands.getBoolean("leaderboard"))
-                    .append("edit rank", commands.getBoolean("edit rank"))
+                    .append("rank", commandsRaw.getBoolean("rank"))
+                    .append("leaderboard", commandsRaw.getBoolean("leaderboard"))
+                    .append("edit rank", commandsRaw.getBoolean("edit rank"))
 
-                    .append("meme", commands.getBoolean("meme"))
-                    .append("text formatter", commands.getBoolean("text formatter"))
+                    .append("meme", commandsRaw.getBoolean("meme"))
+                    .append("text formatter", commandsRaw.getBoolean("text formatter"))
 
-                    .append("music", commands.getBoolean("music"))
-                    .append("join", commands.getBoolean("join"))
-                    .append("leave", commands.getBoolean("leave"))
-                    .append("play", commands.getBoolean("play"))
-                    .append("skip", commands.getBoolean("skip"))
-                    .append("clear queue", commands.getBoolean("clear queue"))
-                    .append("shuffle", commands.getBoolean("shuffle"))
-                    .append("music information", commands.getBoolean("music information"))
-                    .append("queue", commands.getBoolean("queue"))
-                    .append("music controller", commands.getBoolean("music controller"))
+                    .append("music", commandsRaw.getBoolean("music"))
+                    .append("join", commandsRaw.getBoolean("join"))
+                    .append("leave", commandsRaw.getBoolean("leave"))
+                    .append("play", commandsRaw.getBoolean("play"))
+                    .append("skip", commandsRaw.getBoolean("skip"))
+                    .append("clear queue", commandsRaw.getBoolean("clear queue"))
+                    .append("shuffle", commandsRaw.getBoolean("shuffle"))
+                    .append("music information", commandsRaw.getBoolean("music information"))
+                    .append("queue", commandsRaw.getBoolean("queue"))
+                    .append("music controller", commandsRaw.getBoolean("music controller"))
 
-                    .append("moderation", commands.getBoolean("moderation"))
-                    .append("clear", commands.getBoolean("clear"))
-                    .append("nick", commands.getBoolean("nick"))
-                    .append("kick", commands.getBoolean("kick"))
-                    .append("mute", commands.getBoolean("mute"))
-                    .append("ban", commands.getBoolean("ban"))
-                    .append("unban", commands.getBoolean("unban"));
-            Document listenersNested = new Document()
-                    .append("welcomeImage", listeners.getBoolean("welcomeImage"))
-                    .append("welcomeEmbed", listeners.getBoolean("welcomeEmbed"))
-                    .append("welcomeDirectMessage", listeners.getBoolean("welcomeDirectMessage"))
+                    .append("moderation", commandsRaw.getBoolean("moderation"))
+                    .append("clear", commandsRaw.getBoolean("clear"))
+                    .append("nick", commandsRaw.getBoolean("nick"))
+                    .append("kick", commandsRaw.getBoolean("kick"))
+                    .append("mute", commandsRaw.getBoolean("mute"))
+                    .append("ban", commandsRaw.getBoolean("ban"))
+                    .append("unban", commandsRaw.getBoolean("unban"));
+            Document listeners = new Document()
+                    .append("welcomeImage", listenersRaw.getBoolean("welcomeImage"))
+                    .append("welcomeEmbed", listenersRaw.getBoolean("welcomeEmbed"))
+                    .append("welcomeDirectMessage", listenersRaw.getBoolean("welcomeDirectMessage"))
 
-                    .append("suggestions", listeners.getBoolean("suggestions"))
-
-                    .append("autorole", listeners.getBoolean("autorole"));
+                    .append("suggestions", listenersRaw.getBoolean("suggestions"));
 
             //create Document
-            Document guildDoc = new Document("guildId", guildId)
+            Document updatedDocument = new Document()
+                    .append("guildId", doc.getString("guildId"))
                     .append("guildName", doc.getString("guildName"))
                     .append("prefix", doc.getString("prefix"))
                     .append("premium", doc.getBoolean("premium"))
-                    .append("economy", doc.get("economy", Document.class))
-                    .append("leveling", doc.get("leveling", Document.class))
-                    .append("notifications", doc.get("notifications", Document.class))
-                    .append("suggestionsChannel", suggestionsChannel)
+
+                    .append("economy", economy)
+                    .append("leveling", leveling)
+                    .append("notifications", notifications)
+                    .append("suggestionsChannel", doc.getString("suggestionsChannel"))
                     .append("reactionRoles", doc.getList("reactionRoles", Document.class))
-                    .append("logChannel", logChannel)
+
+                    .append("logChannel", doc.getString("logChannel"))
                     .append("globalChat", doc.get("globalChat"))
-                    .append("autoRole", autoRole)
-                    .append("muteRole", muteRole)
+                    .append("autoRole", doc.getString("autoRole"))
+                    .append("muteRole", doc.getString("muteRole"))
+                    .append("musicVoting", doc.getBoolean("musicVoting"))
                     .append("welcome", welcome)
                     .append("commands", commands)
-                    .append("listeners", listenersNested);
+                    .append("listeners", listeners);
 
-            //replace old one
-            mongoDb.getCollection("guilds").findOneAndReplace(
-                    mongoDb.getCollection("guilds").find(eq("guildId", guildDoc.getString("guildId"))).first(),
-                    guildDoc
-            );
+            // Update document
+            mongoDb.getCollection("guilds").findOneAndReplace(doc, updatedDocument);
         }
-  */
-/*        // Member update
-        final MongoCursor<Document> iterator = mongoDb.getCollection("users").find().iterator();
+    }
 
-        while (iterator.hasNext()) {
-            final Document document = iterator.next(); // Get next document
-            //mongoDb.getCollection("usersBackup").insertOne(document); // Make a backup
+    private void updateUsers() {
+        for (Document userDocument : mongoDb.getCollection("users").find()) {
 
             Document updatedUserDocument = new Document() // Create a new user document
-                    .append("userId", document.getString("userId"))
-                    .append("birthday", document.getString("birthday"))
-                    .append("achievements", document.get("achievements", Document.class));
+                    .append("userId", userDocument.getString("userId"))
+                    .append("birthday", userDocument.getString("birthday"))
+                    .append("achievements", userDocument.get("achievements", Document.class));
 
-            System.out.println(document.getString("userId"));
-            for (String key : document.keySet()) {
+            for (String key : userDocument.keySet()) {
                 if (key.equals("_id")) continue;
                 if (key.equals("userId")) continue;
                 if (key.equals("birthday")) continue;
                 if (key.equals("achievements")) continue;
 
+                final Document guildDocument = userDocument.get(key, Document.class); // Get guild document
                 final Document updatedGuildDocument = new Document() // Create a new guild document
                         .append("level", guildDocument.getInteger("level"))
-                        .append("xp", xp)
+                        .append("xp", guildDocument.getInteger("xp"))
                         .append("messages", guildDocument.getInteger("messages"))
                         .append("voiceCallTime", guildDocument.getLong("voiceCallTime"))
                         .append("balance", guildDocument.getInteger("balance"))
@@ -159,8 +147,9 @@ public class MongoDbUpdate {
 
                 updatedUserDocument.append(key, updatedGuildDocument);
             }
-            mongoDb.getCollection("users").replaceOne(document, updatedUserDocument);
-        }*/
+            // Update document
+            mongoDb.getCollection("users").replaceOne(userDocument, updatedUserDocument);
+        }
     }
 
     //add guild document

@@ -1,8 +1,6 @@
 package com.myra.dev.marian.database;
 
-import com.myra.dev.marian.Bot;
 import com.myra.dev.marian.utilities.Config;
-import com.myra.dev.marian.utilities.CustomEmote;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -10,7 +8,6 @@ import net.dv8tion.jda.api.entities.User;
 import org.bson.Document;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import static com.mongodb.client.model.Filters.eq;
 
@@ -19,8 +16,9 @@ public class MongoDbDocuments {
     public static void guild(Guild guild) throws Exception {
         MongoDb mongoDb = MongoDb.getInstance();
 
-        if (mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first() != null)
-            return; // In database is already a guild document
+        // In database is already a guild document
+        if (mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first() != null) return;
+
         // Economy
         Document economy = new Document()
                 .append("currency", Utilities.getUtils().getEmote("coin").getAsMention())
@@ -33,7 +31,9 @@ public class MongoDbDocuments {
         // Notification
         Document notificationsDocument = new Document()
                 .append("channel", "not set")
+                .append("twitchMessage", "not set")
                 .append("twitch", new ArrayList<String>())
+                .append("youtubeMessage", "not set")
                 .append("youtube", new ArrayList<String>());
         //commands
         Document commands = new Document()
@@ -68,14 +68,12 @@ public class MongoDbDocuments {
                 .append("ban", true)
                 .append("unban", true);
         //listeners
-        Document listeners = new Document(
-                //welcome
-                "welcomeImage", false)
+        Document listeners = new Document()
+                // Welcome
+                .append("welcomeImage", false)
                 .append("welcomeEmbed", false)
                 .append("welcomeDirectMessage", false)
-                //autorole
-                .append("autorole", false)
-                //suggestions
+                // Suggestions
                 .append("suggestions", false);
         //welcome
         Document welcome = new Document()
@@ -86,7 +84,6 @@ public class MongoDbDocuments {
                 .append("welcomeEmbedMessage", "Welcome {user} to {server}! Enjoy your stay")
                 .append("welcomeDirectMessage", "Welcome {user} to {server}! Enjoy your stay");
 // Insert document
-        List<Document> guildDocuments = new ArrayList<>();
         //create Document
         Document guildDoc = new Document("guildId", guild.getId())
                 .append("guildName", guild.getName())
