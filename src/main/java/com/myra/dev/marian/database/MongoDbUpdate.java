@@ -25,7 +25,7 @@ public class MongoDbUpdate {
         // Guild update
         for (Document doc : mongoDb.getCollection("guilds").find()) {
             // Make backup
-            mongoDb.getCollection("backup2").insertOne(doc);
+            mongoDb.getCollection("backup").insertOne(doc);
 
             // Get variables
             final Document economyRaw = (Document) doc.get("economy");
@@ -44,9 +44,9 @@ public class MongoDbUpdate {
                     .append("channel", levelingRaw.getString("channel"));
             Document notifications = new Document()
                     .append("channel", notificationsRaw.getString("channel"))
-                    .append("twitchMessage", "not set")
+                    .append("twitchMessage", notificationsRaw.getString("twitchMessage"))
                     .append("twitch", notificationsRaw.getList("twitch", String.class))
-                    .append("youtubeMessage", "not set")
+                    .append("youtubeMessage", notificationsRaw.getString("youtubeMessage"))
                     .append("youtube", notificationsRaw.getList("youtube", String.class));
             Document welcome = new Document()
                     .append("welcomeChannel", welcomeRaw.getString("welcomeChannel"))
