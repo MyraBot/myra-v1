@@ -5,7 +5,8 @@ import com.myra.dev.marian.database.allMethods.GetMember;
 import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
-import com.myra.dev.marian.utilities.EmbedMessage;
+import com.myra.dev.marian.utilities.EmbedMessage.Error;
+import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.Img;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -41,7 +42,11 @@ public class Background implements Command {
         Database db = new Database(ctx.getGuild()); // Get database
         // Not enough money
         if (db.getMembers().getMember(ctx.getMember()).getBalance() < 10000) {
-            Utilities.getUtils().error(ctx.getChannel(), "edit rank", "\uD83D\uDDBC", "Not enough money", "You need 10 000" + db.getNested("economy").getString("currency"), ctx.getAuthor().getEffectiveAvatarUrl());
+            new Error(ctx.getEvent())
+                    .setCommand("edit rank")
+                    .setEmoji("\uD83D\uDDBC")
+                    .setMessage(String.format("You don't have enough money. You need 10 000%n", db.getNested("economy").getString("currency")))
+                    .send();
             return;
         }
         // Check if argument is an image
@@ -50,7 +55,11 @@ public class Background implements Command {
         }
         // Argument isn't an image
         catch (Exception e) {
-            Utilities.getUtils().error(ctx.getChannel(), "edit rank", "\uD83D\uDDBC", "Invalid image", e.getMessage(), ctx.getAuthor().getEffectiveAvatarUrl());
+            new Error(ctx.getEvent())
+                    .setCommand("edit rank")
+                    .setEmoji("\uD83D\uDDBC")
+                    .setMessage("Invalid image")
+                    .send();
             return;
         }
 
@@ -107,12 +116,12 @@ public class Background implements Command {
                         // Barrier
                         else if (reaction.equals(emojis[1])) {
                             // Send cancel success
-                            EmbedMessage.Success success = new EmbedMessage.Success()
+                            new Success(ctx.getEvent())
                                     .setCommand("edit rank")
                                     .setEmoji("\uD83D\uDDBC")
                                     .setAvatar(e.getUser().getEffectiveAvatarUrl())
-                                    .setMessage("Your purchase has been canceled");
-                            success.send(ctx.getChannel());
+                                    .setMessage("Your purchase has been canceled")
+                                    .send();
                         }
                     },
                     30L, TimeUnit.SECONDS, // Timeout

@@ -5,7 +5,8 @@ import com.myra.dev.marian.management.Manager;
 import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
-import com.myra.dev.marian.utilities.EmbedMessage;
+import com.myra.dev.marian.utilities.EmbedMessage.Error;
+import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.Permissions;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -40,23 +41,22 @@ public class WelcomeImageBackground implements Command {
         try {
             ImageIO.read(new URL(ctx.getArguments()[0]));
         } catch (IOException e) {
-            utilities.error(ctx.getChannel(),
-                    "welcome image background",
-                    "\uD83D\uDDBC",
-                    "Invalid background URL",
-                    "Please try another image",
-                    ctx.getAuthor().getEffectiveAvatarUrl());
+            new Error(ctx.getEvent())
+                    .setCommand("welcome image background")
+                    .setEmoji("\uD83D\uDDBC")
+                    .setMessage("Invalid background URL")
+                    .send();
             return;
         }
         //save in database
         new Database(ctx.getGuild()).getNested("welcome").set("welcomeImageBackground", ctx.getArguments()[0], Manager.type.STRING);
         //success
-        EmbedMessage.Success success = new EmbedMessage.Success()
+        Success success = new Success(ctx.getEvent())
                 .setCommand("welcome image background")
                 .setEmoji("\uD83D\uDDBC")
                 .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl())
                 .setMessage("The background has been changed to:")
                 .setImage(ctx.getArguments()[0]);
-        success.send(ctx.getChannel());
+        success.send();
     }
 }

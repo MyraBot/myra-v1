@@ -5,6 +5,7 @@ import com.myra.dev.marian.database.MongoDb;
 import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
+import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
@@ -39,7 +40,11 @@ public class Reminder implements Command {
         String durationRaw = ctx.getArguments()[0]; // Get duration
         //if the duration is not (NumberLetters)
         if (!durationRaw.matches("[0-9]+[a-zA-z]+")) {
-            Utilities.getUtils().error(ctx.getChannel(), "reminder", "\u23F0", "Invalid time", "please note: `<time><time unit>`", ctx.getAuthor().getEffectiveAvatarUrl());
+            new Error(ctx.getEvent())
+                    .setCommand("reminder")
+                    .setEmoji("\u23F0")
+                    .setMessage("Invalid time")
+                    .send();
             return;
         }
         // Get duration

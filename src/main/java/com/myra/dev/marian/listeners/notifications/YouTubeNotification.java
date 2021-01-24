@@ -4,6 +4,7 @@ import com.myra.dev.marian.database.MongoDb;
 import com.myra.dev.marian.database.allMethods.Database;
 import com.myra.dev.marian.database.managers.NotificationsYoutubeManager;
 import com.myra.dev.marian.utilities.APIs.GoogleYouTube;
+import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -39,7 +40,13 @@ public class YouTubeNotification {
 
                     // If no notifications channel is set
                     if (channelRaw.equals("not set")) {
-                        Utilities.getUtils().error(guild.getDefaultChannel(), "notifications", "\uD83D\uDD14", "No notification channel specified", "To set a notification channel type in `" + db.getString("prefix") + "notification channel <channel>`", guild.getIconUrl());
+                        new Error(null)
+                                .setCommand("notifications")
+                                .setEmoji("\uD83D\uDD14")
+                                .setAvatar(guild.getIconUrl())
+                                .setMessage("No notifications channel specified")
+                                .setChannel(guild.getDefaultChannel())
+                                .send();
                         continue;
                     }
                     TextChannel channel = guild.getTextChannelById(channelRaw); // Get notifications channel

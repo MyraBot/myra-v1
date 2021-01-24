@@ -4,6 +4,7 @@ import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
 import com.myra.dev.marian.utilities.APIs.LavaPlayer.PlayerManager;
+import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.Utilities;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -25,21 +26,20 @@ public class MusicInformation implements Command {
         final Utilities utilities = Utilities.getUtils();
         //the bot isn't connected to any voice channel
         if (!ctx.getGuild().getAudioManager().isConnected()) {
-            utilities.error(
-                    ctx.getChannel(),
-                    "track information", "\uD83D\uDDD2",
-                    "I'm not connected to a voice channel",
-                    "Use `" + ctx.getPrefix() + "join` to connect me to your voice channel",
-                    ctx.getAuthor().getEffectiveAvatarUrl());
+            new Error(ctx.getEvent())
+                    .setCommand("track information")
+                    .setEmoji("\uD83D\uDDD2")
+                    .setMessage("I'm not connected to a voice channel")
+                    .send();
             return;
         }
         //bot isn't playing any song
         if (PlayerManager.getInstance().getMusicManager(ctx.getGuild()).audioPlayer.getPlayingTrack() == null) {
-            utilities.error(ctx.getChannel(),
-                    "track information", "\uD83D\uDDD2",
-                    "The player isn`t playing any song",
-                    "Use `" + ctx.getPrefix() + "play <song>` to play a song",
-                    ctx.getAuthor().getEffectiveAvatarUrl());
+            new Error(ctx.getEvent())
+                    .setCommand("track information")
+                    .setEmoji("\uD83D\uDDD2")
+                    .setMessage("The player isn't playing any song")
+                    .send();
             return;
         }
         EmbedBuilder info = new EmbedBuilder()

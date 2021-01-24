@@ -4,6 +4,7 @@ import com.myra.dev.marian.database.allMethods.Database;
 import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
+import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 
@@ -36,7 +37,11 @@ public class SubmitSuggestion implements Command {
          */
         //if no channel is set
         if (db.getString("suggestionsChannel").equals("not set")) {
-            utilities.error(ctx.getChannel(), "suggestions", "\uD83D\uDCA1", "No suggestion channel specified", "To set a suggestion channel type in `" + ctx.getPrefix() + "suggestions channel <channel>`", ctx.getGuild().getIconUrl());
+            new Error(ctx.getEvent())
+                    .setCommand("suggestions")
+                    .setEmoji("\uD83D\uDCA1")
+                    .setMessage("No suggestion channel specified")
+                    .send();
             return;
         }
         // Get suggestion

@@ -4,7 +4,8 @@ import com.myra.dev.marian.database.allMethods.Database;
 import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
-import com.myra.dev.marian.utilities.EmbedMessage;
+import com.myra.dev.marian.utilities.EmbedMessage.Error;
+import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.Permissions;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -35,7 +36,11 @@ public class LevelingRolesAdd implements Command {
          */
         // If level is not a digit
         if (!ctx.getArguments()[0].matches("\\d+")) {
-            utilities.error(ctx.getChannel(), "leveling roles add", "\uD83C\uDFC5", "Invalid level", "You can only use digits", ctx.getAuthor().getEffectiveAvatarUrl());
+            new Error(ctx.getEvent())
+                    .setCommand("leveling roles add")
+                    .setEmoji("\uD83C\uDFC5")
+                    .setMessage("Invalid level")
+                    .send();
             return;
         }
         // Get role to add
@@ -74,15 +79,15 @@ public class LevelingRolesAdd implements Command {
             }
         }
         // Success message
-        EmbedMessage.Success success = new EmbedMessage.Success()
+        Success success = new Success(ctx.getEvent())
                 .setCommand("leveling roles add")
                 .setEmoji("\uD83C\uDFC5")
                 .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl());
         // If role to remove is given
         if (ctx.getArguments().length == 3)
-            success.setMessage(roleToAdd.getAsMention() + " is now linked up tp level `" + ctx.getArguments()[0] + "` and I will remove " + roleToRemove.getAsMention()).send(ctx.getChannel());
+            success.setMessage(roleToAdd.getAsMention() + " is now linked up tp level `" + ctx.getArguments()[0] + "` and I will remove " + roleToRemove.getAsMention()).send();
             // If role to remove isn't give
         else
-            success.setMessage(roleToAdd.getAsMention() + " is now linked up to level `" + ctx.getArguments()[0] + "`").send(ctx.getChannel());
+            success.setMessage(roleToAdd.getAsMention() + " is now linked up to level `" + ctx.getArguments()[0] + "`").send();
     }
 }

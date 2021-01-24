@@ -5,6 +5,7 @@ import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
 import com.myra.dev.marian.utilities.APIs.LavaPlayer.PlayerManager;
 import com.myra.dev.marian.utilities.APIs.LavaPlayer.TrackScheduler;
+import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.MessageReaction;
 import com.myra.dev.marian.utilities.Utilities;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
@@ -28,7 +29,11 @@ public class MusicController implements Command {
         final AudioPlayer player = PlayerManager.getInstance().getMusicManager(ctx.getGuild()).audioPlayer;
         // No audio track is playing
         if (player.getPlayingTrack() == null) {
-            Utilities.getUtils().error(ctx.getChannel(), "music controller", "\uD83C\uDF9A", "The player isn't playing any song", "Use `" + ctx.getPrefix() + "play <song>` to play a song", ctx.getAuthor().getEffectiveAvatarUrl());
+            new Error(ctx.getEvent())
+                    .setCommand("music controller")
+                    .setEmoji("\uD83C\uDF9A")
+                    .setMessage("The player isn't playing any song")
+                    .send();
             return;
         }
         //music controller

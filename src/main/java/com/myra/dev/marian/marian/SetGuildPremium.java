@@ -4,9 +4,9 @@ import com.myra.dev.marian.database.MongoDb;
 import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
-import com.myra.dev.marian.utilities.EmbedMessage;
+import com.myra.dev.marian.utilities.EmbedMessage.Error;
+import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.Permissions;
-import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.entities.Guild;
 import org.bson.Document;
 
@@ -23,7 +23,10 @@ public class SetGuildPremium implements Command {
         final String guildId = ctx.getArguments()[0]; // Get guild
         // No server found
         if (ctx.getEvent().getJDA().getGuildById(guildId) == null) {
-            Utilities.getUtils().error(ctx.getChannel(), "set premium", "", "Couldn't find server", "Make sure you used the right id", ctx.getAuthor().getEffectiveAvatarUrl());
+            new Error(ctx.getEvent())
+                    .setCommand("set premium")
+                    .setMessage("Couldn't find this server")
+                    .send();
             return;
         }
         final Guild guild = ctx.getEvent().getJDA().getGuildById(guildId); // Get guild
@@ -33,10 +36,11 @@ public class SetGuildPremium implements Command {
         document.replace("premium", newValue); // Update premium status
 
         MongoDb.getInstance().getCollection("guilds").findOneAndReplace(eq("guildId", guildId), document); // Update guild document
-        EmbedMessage.Success success = new EmbedMessage.Success()
+        new Success(ctx.getEvent())
                 .setCommand("set premium")
                 .setAvatar(guild.getIconUrl())
-                .setMessage(guild.getName() + " has now premium");
-        success.send(ctx.getChannel());
+                .setMessage(guild.getName() + " has now premium")
+                .setChannel(ctx.getChannel())
+                .send();
     }
 }

@@ -6,6 +6,7 @@ import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
 import com.myra.dev.marian.utilities.Config;
+import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
@@ -47,7 +48,12 @@ public class BlackJack implements Command {
                     if (player.getPlayer().equals(ctx.getAuthor())) {
                         ctx.getChannel().retrieveMessageById(messageId).queue(message -> {
                             // If user has already started a game
-                            Utilities.getUtils().error(ctx.getChannel(), "blackjack", "\uD83C\uDCCF", "You already started a game", "Please finish the " + Utilities.getUtils().hyperlink("game", message.getJumpUrl()) + " you started first", ctx.getAuthor().getEffectiveAvatarUrl());
+                            new Error(ctx.getEvent())
+                                    .setCommand("blackjack")
+                                    .setEmoji("\uD83C\uDCCF")
+                                    .setLink(message.getJumpUrl())
+                                    .setMessage(String.format("Finish the %s you started first", Utilities.getUtils().hyperlink("game", message.getJumpUrl())))
+                                    .send();
                         });
                         return;
                     }
@@ -56,7 +62,11 @@ public class BlackJack implements Command {
         }
         // Invalid amount of money
         if (!ctx.getArguments()[0].matches("\\d+")) {
-            Utilities.getUtils().error(ctx.getChannel(), "blackjack", "\uD83C\uDCCF", "Invalid number", "Make sure you only use digits", ctx.getAuthor().getEffectiveAvatarUrl());
+            new Error(ctx.getEvent())
+                    .setCommand("blackjack")
+                    .setEmoji("\uD83C\uDCCF")
+                    .setMessage( "Invalid number")
+                    .send();
             return;
         }
         // If game isn't a test match
@@ -64,13 +74,21 @@ public class BlackJack implements Command {
             final int win = new Database(ctx.getGuild()).getMembers().getMember(ctx.getMember()).getInteger("balance") + Integer.parseInt(ctx.getArguments()[0]); // Get amount of money you would ge if you win
             // Balance limit would be reached
             if (win > Config.ECONOMY_MAX) {
-                Utilities.getUtils().error(ctx.getChannel(), "blackjack", "\uD83C\uDCCF", "lol", "If you play you would have to much money...", ctx.getAuthor().getEffectiveAvatarUrl());
+                new Error(ctx.getEvent())
+                        .setCommand("blackjack")
+                        .setEmoji("\uD83C\uDCCF")
+                        .setMessage("We don't want people to get too rich... What about giving other members money? Then try again!")
+                        .send();
                 return;
             }
         }
         // Not enough money
         if (new Database(ctx.getGuild()).getMembers().getMember(ctx.getMember()).getBalance() < Integer.parseInt(ctx.getArguments()[0])) {
-            Utilities.getUtils().error(ctx.getChannel(), "blackjack", "\uD83C\uDCCF", "You don't have enough money", "The bank doesn't want to lend you money anymore", ctx.getAuthor().getEffectiveAvatarUrl());
+            new Error(ctx.getEvent())
+                    .setCommand("blackjack")
+                    .setEmoji("\uD83C\uDCCF")
+                    .setMessage("You don't have enough money")
+                    .send();
             return;
         }
 // Blackjack
@@ -235,9 +253,13 @@ public class BlackJack implements Command {
         // Create embed
         EmbedBuilder match = new EmbedBuilder()
                 .setAuthor("blackjack", null, player.getPlayer().getEffectiveAvatarUrl())
-                .setColor(Utilities.getUtils().getMemberRoleColour(guild.getMember(player.getPlayer())))
                 // Player cards
                 .addField("Your cards: " + player.getValue(), getPlayerCards(player, guild.getJDA()), false);
+
+        guild.retrieveMember(player.getPlayer()).queue(member -> {
+            match.setColor(Utilities.getUtils().getMemberRoleColour(member));
+        });
+
         // Get member in database
         final GetMember dbMember = new Database(guild).getMembers().getMember(guild.getMember(player.getPlayer()));
 // Lost

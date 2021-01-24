@@ -5,6 +5,7 @@ import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
 import com.myra.dev.marian.utilities.APIs.LavaPlayer.GuildMusicManager;
 import com.myra.dev.marian.utilities.APIs.LavaPlayer.PlayerManager;
+import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 
@@ -21,12 +22,20 @@ public class MusicStop implements Command {
 // Errors
         // Bot isn't connected to a voice channel
         if (!ctx.getGuild().getAudioManager().isConnected()) {
-            utilities.error(ctx.getChannel(), "stop", "\u23F9", "I'm not connected to a voice channel", "Use `" + ctx.getPrefix() + "join` to connect me to your voice channel", ctx.getAuthor().getEffectiveAvatarUrl());
+            new Error(ctx.getEvent())
+                    .setCommand("stop")
+                    .setEmoji("\u23F9")
+                    .setMessage("I'm not connected to a voice channel")
+                    .send();
             return;
         }
         // No audio track is playing
         if (PlayerManager.getInstance().getMusicManager(ctx.getGuild()).audioPlayer.getPlayingTrack() == null) {
-            utilities.error(ctx.getChannel(), "stop", "\u23F9", "The player isn`t playing any song", "Use `" + ctx.getPrefix() + "play <song>` to play a song", ctx.getAuthor().getEffectiveAvatarUrl());
+            new Error(ctx.getEvent())
+                    .setCommand("stop")
+                    .setEmoji("\u23F9")
+                    .setMessage("The player isn't playing any song")
+                    .send();
             return;
         }
 // Skip current playing track

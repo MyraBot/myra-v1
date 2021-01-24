@@ -4,6 +4,7 @@ import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
 import com.myra.dev.marian.utilities.APIs.LavaPlayer.PlayerManager;
+import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.Utilities;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
@@ -29,12 +30,20 @@ public class MusicQueue implements Command {
 // Errors
         // Bot isn't connected to a voice channel
         if (!ctx.getGuild().getAudioManager().isConnected()) {
-            utilities.error(ctx.getChannel(), "shuffle queue", "\uD83D\uDCE4", "I'm not connected to a voice channel", "Use `" + ctx.getPrefix() + "join` to connect me to your voice channel", ctx.getAuthor().getEffectiveAvatarUrl());
+            new Error(ctx.getEvent())
+                    .setCommand("shuffle queue")
+                    .setEmoji("\uD83D\uDCE4")
+                    .setMessage("I'm not connected to a voice channel")
+                    .send();
             return;
         }
         // No audio track is playing
         if (PlayerManager.getInstance().getMusicManager(ctx.getGuild()).audioPlayer.getPlayingTrack() == null) {
-            utilities.error(ctx.getChannel(), "shuffle queue", "\uD83C\uDFB2", "The player isn't playing any song", "Use `" + ctx.getPrefix() + "play <song>` to play a song", ctx.getAuthor().getEffectiveAvatarUrl());
+            new Error(ctx.getEvent())
+                    .setCommand("shuffle queue")
+                    .setEmoji("\uD83D\uDCE4")
+                    .setMessage("The player isn't playing any song")
+                    .send();
             return;
         }
 // Send Queue

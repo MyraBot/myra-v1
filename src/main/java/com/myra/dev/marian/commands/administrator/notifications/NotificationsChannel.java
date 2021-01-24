@@ -5,7 +5,7 @@ import com.myra.dev.marian.management.Manager;
 import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
-import com.myra.dev.marian.utilities.EmbedMessage;
+import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.Permissions;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -46,23 +46,23 @@ public class NotificationsChannel implements Command {
             //remove channel id
             db.getNested("notifications").set("channel", "not set", Manager.type.STRING);
             //success
-            EmbedMessage.Success success = new EmbedMessage.Success()
+            Success success = new Success(ctx.getEvent())
                     .setCommand("notification channel")
                     .setEmoji("\uD83D\uDD14")
                     .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl())
                     .setMessage("Notifications are no longer send in " + channel.getAsMention());
-            success.send(ctx.getChannel());
+            success.send();
             return;
         }
         //change notification channel
         db.getNested("notifications").set("channel", channel.getId(), Manager.type.STRING);
         //success
-        EmbedMessage.Success success = new EmbedMessage.Success()
+        Success success = new Success(ctx.getEvent())
                 .setCommand("notification channel")
                 .setEmoji("\uD83D\uDD14")
                 .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl());
 
-        success.setMessage("Notifications are now send in " + channel.getAsMention()).send(ctx.getChannel());
-        success.setMessage("Media notifications are now send in here").send(channel);
+        success.setMessage("Notifications are now send in " + channel.getAsMention()).send();
+        success.setMessage("Media notifications are now send in here").setChannel(channel).send();
     }
 }

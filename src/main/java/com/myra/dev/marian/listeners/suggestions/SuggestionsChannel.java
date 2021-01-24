@@ -4,7 +4,7 @@ import com.myra.dev.marian.database.allMethods.Database;
 import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
-import com.myra.dev.marian.utilities.EmbedMessage;
+import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.Permissions;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -37,19 +37,19 @@ public class SuggestionsChannel implements Command {
         TextChannel channel = utilities.getTextChannel(ctx.getEvent(), ctx.getArguments()[0], "suggestions", "\uD83D\uDDF3");
         if (channel == null) return;
         // Success
-        EmbedMessage.Success success = new EmbedMessage.Success()
+        Success success = new Success(ctx.getEvent())
                 .setCommand("suggestions")
                 .setEmoji("\uD83D\uDDF3")
                 .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl());
         //remove suggestions channel
         if (db.getString("suggestionsChannel").equals(channel.getId())) {
             db.set("suggestionsChannel", "not set"); // Update database
-            success.setMessage("Suggestions are no longer sent in " + ctx.getGuild().getTextChannelById(db.getString("suggestionsChannel")).getAsMention()).send(ctx.getChannel()); // Success
+            success.setMessage("Suggestions are no longer sent in " + ctx.getGuild().getTextChannelById(db.getString("suggestionsChannel")).getAsMention()).send(); // Success
         } else {
             db.set("suggestionsChannel", channel.getId()); // Update database
             // Success messages
-            success.setMessage("Suggestions are now sent in " + channel.getAsMention()).send(ctx.getChannel());
-            success.setMessage("Suggestions are now send in here").send(channel);
+            success.setMessage("Suggestions are now sent in " + channel.getAsMention()).send();
+            success.setMessage("Suggestions are now send in here").setChannel(channel).send();
         }
     }
 }

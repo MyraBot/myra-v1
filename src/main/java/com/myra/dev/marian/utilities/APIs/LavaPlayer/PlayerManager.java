@@ -1,5 +1,6 @@
 package com.myra.dev.marian.utilities.APIs.LavaPlayer;
 
+import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.Utilities;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
@@ -79,24 +80,22 @@ public class PlayerManager {
 
             @Override
             public void noMatches() {
-                Utilities.getUtils().error(
-                        channel,
-                        "play", "\uD83D\uDCBF",
-                        "Track not found",
-                        "Nothing found by " + trackUrl,
-                        authorAvatar
-                );
+                new Error(null)
+                        .setCommand("play")
+                        .setEmoji("\uD83D\uDCBF")
+                        .setAvatar(authorAvatar)
+                        .setMessage("Nothing found by " + trackUrl)
+                        .send();
             }
 
             @Override
             public void loadFailed(FriendlyException e) {
-                Utilities.getUtils().error(
-                        channel,
-                        "play", "\uD83D\uDCBF",
-                        "Could not play the track",
-                        e.getMessage(),
-                        authorAvatar
-                );
+                new Error(null)
+                        .setCommand("play")
+                        .setEmoji("\uD83D\uDCBF")
+                        .setAvatar(authorAvatar)
+                        .setMessage("Could not play the track")
+                        .send();
             }
         });
         // Set volume

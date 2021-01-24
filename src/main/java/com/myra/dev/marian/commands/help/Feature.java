@@ -1,11 +1,10 @@
 package com.myra.dev.marian.commands.help;
 
-import com.myra.dev.marian.Bot;
 import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
 import com.myra.dev.marian.utilities.Config;
-import com.myra.dev.marian.utilities.EmbedMessage;
+import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.Utilities;
 import com.myra.dev.marian.utilities.Webhook;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -60,11 +59,11 @@ public class Feature implements Command {
         }));
 
         // Success information
-        EmbedMessage.Success success = new EmbedMessage.Success()
+        Success success = new Success(ctx.getEvent())
                 .setCommand("feature")
                 .setEmoji("\uD83D\uDCCC")
                 .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl())
                 .setMessage("Your feature request was successfully submitted");
-        success.send(ctx.getChannel());
+        success.send();
     }
 }

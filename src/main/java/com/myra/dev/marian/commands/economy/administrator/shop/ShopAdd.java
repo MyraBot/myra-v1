@@ -5,6 +5,7 @@ import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
 import com.myra.dev.marian.utilities.Config;
+import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.Permissions;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -33,12 +34,20 @@ public class ShopAdd implements Command {
         final Role role = Utilities.getUtils().getRole(ctx.getEvent(), ctx.getArguments()[0], "shop add", "\u26FD"); // Store role
         // Price isn't a number
         if (!ctx.getArguments()[1].matches("\\d+")) {
-            Utilities.getUtils().error(ctx.getChannel(), "shop add", "\u26FD", "Invalid number", "Please provide a valid number", ctx.getAuthor().getEffectiveAvatarUrl());
+            new Error(ctx.getEvent())
+                    .setCommand("shop add")
+                    .setEmoji("\u26FD")
+                    .setMessage("Invalid number")
+                    .send();
             return;
         }
         // Price is more than the maximum amount of money
         if (Integer.parseInt(ctx.getArguments()[1]) > Config.ECONOMY_MAX) {
-            Utilities.getUtils().error(ctx.getChannel(), "shop add", "\u26FD", "Invalid number", "You can't set a price higher than the maximum", ctx.getAuthor().getEffectiveAvatarUrl());
+            new Error(ctx.getEvent())
+                    .setCommand("shop add")
+                    .setEmoji("\u26FD")
+                    .setMessage("This is too expensive")
+                    .send();
             return;
         }
         // Add new Role

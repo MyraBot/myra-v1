@@ -24,7 +24,7 @@ public class WelcomePreview implements Command {
         Database db = new Database(ctx.getGuild()); // Get database
         // Get greetings
         final MessageEmbed privateMessage = new WelcomeDirectMessageRender().render(ctx.getGuild(), ctx.getAuthor()); // Get direct message
-        final MessageEmbed embedMessage = new WelcomeEmbedRender().render(ctx.getGuild(), ctx.getAuthor()); // Get embed message
+        final MessageEmbed embed = new WelcomeEmbedRender().render(ctx.getGuild(), ctx.getAuthor()); // Get embed message
         final InputStream welcomeImage = new WelcomeImageRender().render(ctx.getGuild(), ctx.getAuthor()); // Get welcome image
 
         // Welcome direct message is enabled
@@ -35,7 +35,7 @@ public class WelcomePreview implements Command {
         }
         // Welcome embed is enabled
         if (db.getListenerManager().check("welcomeEmbed")) {
-            ctx.getChannel().sendMessage(embedMessage).queue();
+            ctx.getChannel().sendMessage(embed).queue();
         }
         // Welcome Image is enabled
         if (db.getListenerManager().check("welcomeImage")) {

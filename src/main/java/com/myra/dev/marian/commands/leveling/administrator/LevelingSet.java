@@ -5,7 +5,8 @@ import com.myra.dev.marian.listeners.leveling.Leveling;
 import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
-import com.myra.dev.marian.utilities.EmbedMessage;
+import com.myra.dev.marian.utilities.EmbedMessage.Error;
+import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.Permissions;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -37,7 +38,11 @@ public class LevelingSet implements Command {
         if (user == null) return;
         // When user is a bot
         if (user.isBot()) {
-            Utilities.getUtils().error(ctx.getChannel(), "leveling set", "\uD83C\uDFC6", user.getName() + " is a bot", "Bots aren't allowed to participate in the ranking competition", ctx.getAuthor().getEffectiveAvatarUrl());
+            new Error(ctx.getEvent())
+                    .setCommand("leveling set")
+                    .setEmoji("\uD83C\uDFC6")
+                    .setMessage("Bots aren't allowed to participate in the ranking competition")
+                    .send();
             return;
         }
 
@@ -46,12 +51,12 @@ public class LevelingSet implements Command {
         db.getMembers().getMember(ctx.getGuild().getMember(user)).setInteger("xp", leveling.xpFromLevel(Integer.parseInt(ctx.getArguments()[1]))); // Update xp
 
         //send success message
-        EmbedMessage.Success success = new EmbedMessage.Success()
+        new Success(ctx.getEvent())
                 .setCommand("leveling set")
                 .setEmoji("\uD83C\uDFC6")
                 .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl())
-                .setMessage(user.getAsMention() + " is now level `" + ctx.getArguments()[1] + "`");
-        success.send(ctx.getChannel());
+                .setMessage(user.getAsMention() + " is now level `" + ctx.getArguments()[1] + "`")
+                .send();
         // CHeck for leveling roles
         leveling.levelingRoles(ctx.getGuild(), ctx.getGuild().getMember(user), new Database(ctx.getGuild()).getMembers().getMember(ctx.getGuild().getMember(user)));
     }

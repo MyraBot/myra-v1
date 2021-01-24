@@ -4,6 +4,7 @@ package com.myra.dev.marian.commands.general;
 import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
+import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 
@@ -53,7 +54,11 @@ public class Calculate implements Command {
             ctx.getChannel().sendMessage(calculated.build()).queue();
         } catch (Exception e) {
             e.printStackTrace();
-            Utilities.getUtils().error(ctx.getChannel(), "calculate", "\uD83E\uDDEE", "Error occurred", e.getMessage(), ctx.getAuthor().getEffectiveAvatarUrl());
+            new Error(ctx.getEvent())
+                    .setCommand("calculate")
+                    .setEmoji("\uD83E\uDDEE")
+                    .setMessage("I think I'm too stupid for this task")
+                    .send();
         }
     }
 }

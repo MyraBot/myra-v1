@@ -4,6 +4,7 @@ import com.myra.dev.marian.database.MongoDb;
 import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
+import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.Permissions;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -131,14 +132,20 @@ public class ReactionRolesAdd implements Command {
                                             30L, TimeUnit.SECONDS,
                                             () -> { // Code on timeout
                                                 msg1.clearReactions().queue(); // Clear reactions
-                                                Utilities.getUtils().error(ctx.getChannel(), "reaction roles add", "", "You took too long", "Canceled creating reaction role", ctx.getAuthor().getEffectiveAvatarUrl());
+                                                new Error(ctx.getEvent())
+                                                        .setCommand("reaction roles add")
+                                                        .setMessage("You took too long")
+                                                        .send();
                                             }
                                     );
                                 });
                             }, 30L, TimeUnit.SECONDS, // Timeout
                             () -> { // Code on timeout
                                 msg1.clearReactions().queue(); // Clear reactions
-                                Utilities.getUtils().error(ctx.getChannel(), "reaction roles add", "", "You took too long", "Canceled creating reaction role", ctx.getAuthor().getEffectiveAvatarUrl());
+                                new Error(ctx.getEvent())
+                                        .setCommand("reaction roles add")
+                                        .setMessage("You took too long")
+                                        .send();
                             }
                     );
                 }

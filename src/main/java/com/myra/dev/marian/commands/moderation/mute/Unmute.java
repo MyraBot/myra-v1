@@ -4,6 +4,7 @@ import com.myra.dev.marian.database.allMethods.Database;
 import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
+import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.Permissions;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -36,12 +37,20 @@ public class Unmute implements Command {
         final String muteRoleId = new Database(ctx.getGuild()).getString("muteRole"); // Get mute role id
         // No mute role set
         if (muteRoleId.equals("not set")) {
-            Utilities.getUtils().error(ctx.getChannel(), "unmute", "\uD83D\uDD08", "You didn't specify a mute role", "To indicate a mute role, type in `" + ctx.getPrefix() + "mute role <role>`", ctx.getAuthor().getEffectiveAvatarUrl());
+            new Error(ctx.getEvent())
+                    .setCommand("unmute")
+                    .setEmoji("\uD83D\uDD08")
+                    .setMessage("You didn't specify a mute role")
+                    .send();
             return;
         }
         // User is already muted
         if (!member.getRoles().contains(ctx.getGuild().getRoleById(muteRoleId))) {
-            Utilities.getUtils().error(ctx.getChannel(), "unmute", "\uD83D\uDD08", "This user isn't muted", "Use `" + ctx.getPrefix() + "mute <user>` to mute a user", ctx.getAuthor().getEffectiveAvatarUrl());
+            new Error(ctx.getEvent())
+                    .setCommand("unmute")
+                    .setEmoji("\uD83D\uDD08")
+                    .setMessage("This user isn't muted")
+                    .send();
             return;
         }
 

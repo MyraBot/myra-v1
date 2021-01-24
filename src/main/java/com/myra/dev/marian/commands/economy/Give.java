@@ -6,6 +6,7 @@ import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
 import com.myra.dev.marian.utilities.Config;
+import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
@@ -34,7 +35,11 @@ public class Give implements Command {
 // Errors
         // Amount of money aren't digits
         if (!ctx.getArguments()[1].matches("\\d+")) {
-            utilities.error(ctx.getChannel(), "give", "\uD83D\uDCB8", "Invalid number", "Please only use digits", ctx.getAuthor().getEffectiveAvatarUrl());
+            new Error(ctx.getEvent())
+                    .setMessage("give")
+                    .setEmoji("\uD83D\uDCB8")
+                    .setMessage("Invalid number")
+                    .send();
             return;
         }
 
@@ -44,17 +49,29 @@ public class Give implements Command {
 
         // Don't have enough money
         if (dbAuthor.getInteger("balance") < amount) {
-            utilities.error(ctx.getChannel(), "give", "\uD83D\uDCB8", "Nope", "You don't have enough money", ctx.getAuthor().getEffectiveAvatarUrl());
+            new Error(ctx.getEvent())
+                    .setMessage("give")
+                    .setEmoji("\uD83D\uDCB8")
+                    .setMessage("You don't have enough money")
+                    .send();
             return;
         }
         // Balance limit would be reached
         if (dbMember.getInteger("balance") + amount > Config.ECONOMY_MAX) {
-            utilities.error(ctx.getChannel(), "give", "\uD83D\uDCB8", "lol", "The user you want to give the money would be too rich...", ctx.getAuthor().getEffectiveAvatarUrl());
+            new Error(ctx.getEvent())
+                    .setMessage("give")
+                    .setEmoji("\uD83D\uDCB8")
+                    .setMessage("What are you doing? The member you want to give money is already rich")
+                    .send();
             return;
         }
         // User is bot
         if (member.getUser().isBot()) {
-            utilities.error(ctx.getChannel(), "give", "\uD83D\uDCB8", "Invalid user", "You're not allowed to give credits to bots", ctx.getAuthor().getEffectiveAvatarUrl());
+            new Error(ctx.getEvent())
+                    .setMessage("give")
+                    .setEmoji("\uD83D\uDCB8")
+                    .setMessage("I wouldn't do that, bots can cheat infinite money... So why giving them even more?")
+                    .send();
             return;
         }
 // Transfer money

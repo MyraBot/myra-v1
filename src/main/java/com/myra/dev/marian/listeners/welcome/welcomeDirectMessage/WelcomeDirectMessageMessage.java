@@ -5,7 +5,7 @@ import com.myra.dev.marian.management.Manager;
 import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
-import com.myra.dev.marian.utilities.EmbedMessage;
+import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.Permissions;
 import net.dv8tion.jda.api.EmbedBuilder;
 
@@ -38,7 +38,7 @@ public class WelcomeDirectMessageMessage implements Command {
         db.getNested("welcome").set("welcomeDirectMessage", message, Manager.type.STRING);
         //success
         String welcomeMessage = db.getNested("welcome").getString("welcomeDirectMessage");
-        EmbedMessage.Success success = new EmbedMessage.Success()
+        Success success = new Success(ctx.getEvent())
                 .setCommand("welcome direct message")
                 .setEmoji("\u2709\uFE0F")
                 .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl())
@@ -48,6 +48,6 @@ public class WelcomeDirectMessageMessage implements Command {
                         .replace("{server}", ctx.getGuild().getName())
                         .replace("{count}", Integer.toString(ctx.getGuild().getMemberCount()))
                 );
-        success.send(ctx.getChannel());
+        success.send();
     }
 }

@@ -3,6 +3,7 @@ package com.myra.dev.marian.commands.general.information;
 import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
+import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.OnlineStatus;
@@ -36,7 +37,11 @@ public class InformationUser implements Command {
         else {
             //if user isn't in the guild
             if (utilities.getMember(ctx.getEvent(), ctx.getArguments()[0], "information user", "\uD83D\uDC64") == null) {
-                utilities.error(ctx.getChannel(), "information user", "\uD83D\uDC64", "No user found", "For this command the user has to be on this server", ctx.getAuthor().getEffectiveAvatarUrl());
+                new Error(ctx.getEvent())
+                        .setCommand("information user")
+                        .setEmoji("\uD83D\uDC64")
+                        .setMessage("No user found")
+                        .send();
                 return;
             }
             user = utilities.getMember(ctx.getEvent(), ctx.getArguments()[0], "information user", "\uD83D\uDC64");

@@ -4,7 +4,8 @@ import com.myra.dev.marian.database.allMethods.Database;
 import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
-import com.myra.dev.marian.utilities.EmbedMessage;
+import com.myra.dev.marian.utilities.EmbedMessage.Error;
+import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.Permissions;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -41,11 +42,11 @@ public class ReactionRolesRemove implements Command {
 
                         // Reacted message isn't a reaction role
                         if (reactionRoles.stream().noneMatch(reactionRole -> reactionMessage.equals(reactionRole.getString("message")) && reactionEmoji.equals(reactionRole.getString("emoji")))) {
-                            EmbedMessage.Error error = new EmbedMessage.Error()
+                            new Error(ctx.getEvent())
                                     .setCommand("reaction roles remove")
                                     .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl())
-                                    .setMessage("This is not a reaction role");
-                            error.send(ctx.getChannel());
+                                    .setMessage("This is not a reaction role")
+                                    .send();
                             return;
                         }
 
@@ -61,22 +62,22 @@ public class ReactionRolesRemove implements Command {
                                 e.retrieveMessage().queue(message -> message.removeReaction(emoji, e.getJDA().getSelfUser()).queue()); // Remove reaction from message
 
                                 // Send success message
-                                EmbedMessage.Success success = new EmbedMessage.Success()
+                                Success success = new Success(ctx.getEvent())
                                         .setCommand("reaction roles remove")
                                         .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl())
                                         .setMessage("Deleted reaction role");
-                                success.send(e.getChannel());
+                                success.setChannel(e.getChannel()).send();
                                 break;
                             }
                         }
                     },
                     30L, TimeUnit.SECONDS, // Timeout
                     () -> { // Code on timeout
-                        EmbedMessage.Error error = new EmbedMessage.Error()
+                        new Error(ctx.getEvent())
                                 .setCommand("reaction roles remove")
                                 .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl())
-                                .setMessage("You didn't remove a reaction");
-                        error.send(ctx.getChannel());
+                                .setMessage("You didn't remove a reaction")
+                                .send();
                     }
             );
         });

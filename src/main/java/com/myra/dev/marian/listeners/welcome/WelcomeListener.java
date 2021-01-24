@@ -28,8 +28,8 @@ public class WelcomeListener {
         }
         // Welcome embed is enabled
         if (db.getListenerManager().check("welcomeEmbed")) {
-            final MessageEmbed embedMessage = new WelcomeEmbedRender().render(event.getGuild(), event.getUser()); // Get embed message
-            channel.sendMessage(embedMessage).queue();
+            final MessageEmbed embed  = new WelcomeEmbedRender().render(event.getGuild(), event.getUser()); // Get embed message
+            channel.sendMessage(embed).queue(); // Send embed
         }
         // Welcome Image is enabled
         if (db.getListenerManager().check("welcomeImage")) {

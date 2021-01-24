@@ -3,6 +3,7 @@ package com.myra.dev.marian.listeners.leveling;
 import com.myra.dev.marian.database.allMethods.Database;
 import com.myra.dev.marian.database.allMethods.GetMember;
 import com.myra.dev.marian.database.documents.LevelingRolesDocument;
+import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.Graphic;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.entities.Guild;
@@ -41,7 +42,12 @@ public class Leveling {
 
             if (guild.getTextChannelById(levelingChannel) == null) { // Channel is invalid
                 if (channel != null) {
-                    Utilities.getUtils().error(channel, "rank up", "\uD83C\uDF96", "Couldn't send your rank-up image", "The leveling channel is invalid", guild.getIconUrl());
+                    new Error(null)
+                            .setCommand("rank up")
+                            .setEmoji("\uD83C\uDF96")
+                            .setAvatar(guild.getIconUrl())
+                            .setMessage("The leveling channel is invalid")
+                            .send();
                 }
             }
             guild.getTextChannelById(levelingChannel).sendMessage("> **" + member.getUser().getAsMention() + " reached a new level!**")

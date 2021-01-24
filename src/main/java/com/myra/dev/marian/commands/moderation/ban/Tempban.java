@@ -6,6 +6,7 @@ import com.myra.dev.marian.database.allMethods.Database;
 import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
+import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.Permissions;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -46,7 +47,12 @@ public class Tempban implements Command {
         final String durationRaw = ctx.getArguments()[1]; // Get duration from the message
         //if the duration is not [NumberLetters]
         if (!durationRaw.matches("[0-9]+[a-zA-z]+")) {
-            utilities.error(ctx.getChannel(), "tempban", "\u23F1\uFE0F", "Invalid time", "please note: `<time><time unit>`", ctx.getAuthor().getEffectiveAvatarUrl());
+            new Error(ctx.getEvent())
+                    .setCommand("tempban")
+                    .setEmoji("\u23F1\uFE0F")
+                    .setMessage("Invalid time")
+                    .setFooter("please note: `<time><time unit>`")
+                    .send();
             return;
         }
 
@@ -172,7 +178,12 @@ public class Tempban implements Command {
 
         // No log channel set
         if (db.getString("logChannel").equals("not set")) {
-            Utilities.getUtils().error(guild.getDefaultChannel(), "tempban", "\u23F1\uFE0F", "No log channel specified", "To set a log channel type in `" + new Database(guild).getString("prefix") + "log channel <channel>`", author.getEffectiveAvatarUrl());
+            new Error(null)
+                    .setCommand("tempban")
+                    .setEmoji("\u23F1\uFE0F")
+                    .setAvatar(user.getEffectiveAvatarUrl())
+                    .setMessage("No log channel specified")
+                    .send();
             return;
         }
         final TextChannel textChannel = guild.getTextChannelById(db.getString("logChannel")); // Get log channel

@@ -5,7 +5,8 @@ import com.myra.dev.marian.management.Manager;
 import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
-import com.myra.dev.marian.utilities.EmbedMessage;
+import com.myra.dev.marian.utilities.EmbedMessage.Error;
+import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.Permissions;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -47,18 +48,21 @@ public class WelcomeColour implements Command {
         try {
             Color.decode(hex);
         } catch (Exception e) {
-            utilities.error(ctx.getChannel(), "welcome embed colour", "\uD83C\uDFA8", "Invalid colour", "The given colour doesn't exist", ctx.getAuthor().getEffectiveAvatarUrl())
-            ;
+            new Error(ctx.getEvent())
+                    .setCommand("welcome embed colour")
+                    .setEmoji("\uD83C\uDFA8")
+                    .setMessage("Invalid colour")
+                    .send();
             return;
         }
         //save in database
         new Database(ctx.getGuild()).getNested("welcome").set("welcomeColour", hex, Manager.type.INTEGER);
         //success
-        EmbedMessage.Success success = new EmbedMessage.Success()
+        Success success = new Success(ctx.getEvent())
                 .setCommand("welcome embed colour")
                 .setEmoji("\uD83C\uDFA8")
                 .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl())
                 .setMessage("Colour changed to `" + hex.replace("0x", "#") + "`");
-        success.send(ctx.getChannel());
+        success.send();
     }
 }

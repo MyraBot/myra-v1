@@ -8,6 +8,7 @@ import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
 import com.myra.dev.marian.utilities.Config;
+import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Role;
@@ -37,7 +38,7 @@ public class Buy implements Command {
             for (ShopRolesDocument role : roles) {
                 // Role is invalid
                 if (ctx.getGuild().getRoleById(role.getId()) == null) {
-                   ShopRolesManager.getInstance().removeRole(ctx.getGuild(), role.getId()); // Remove role
+                    ShopRolesManager.getInstance().removeRole(ctx.getGuild(), role.getId()); // Remove role
                     continue;
                 }
                 shop.appendDescription("• " + ctx.getGuild().getRoleById(role.getId()).getAsMention() + " - " + Utilities.getUtils().formatNumber(role.getPrice()) + "\n");
@@ -61,7 +62,11 @@ public class Buy implements Command {
         }
         // Role isn't in the shop
         if (shopRole == null) {
-            Utilities.getUtils().error(ctx.getChannel(), "buy", "\uD83D\uDED2", "This role is not for sale", "Tried buying admin? Pfff *nice idea*", ctx.getAuthor().getEffectiveAvatarUrl());
+            new Error(ctx.getEvent())
+                    .setCommand("buy")
+                    .setEmoji("\uD83D\uDED2")
+                    .setMessage("Tried buying admin? Pfff *nice idea*")
+                    .send();
             return;
         }
         // Member already owns this role
@@ -92,7 +97,11 @@ public class Buy implements Command {
         final GetMember member = new Database(ctx.getGuild()).getMembers().getMember(ctx.getMember()); // Get member in database
         // Not enough money
         if (member.getBalance() < shopRole.getPrice()) {
-            Utilities.getUtils().error(ctx.getChannel(), "buy", "\uD83D\uDED2", "You don't have enough money", "I'm sorry :(", ctx.getAuthor().getEffectiveAvatarUrl());
+            new Error(ctx.getEvent())
+                    .setCommand("buy")
+                    .setEmoji("\uD83D\uDED2")
+                    .setMessage("You don't have enough money")
+                    .send();
             return;
         }
         // Add role
@@ -101,7 +110,11 @@ public class Buy implements Command {
         } catch (Exception e) {
             // Role to buy is higher than bot
             if (e.toString().startsWith("net.dv8tion.jda.api.exceptions.HierarchyException: Can't modify a role with higher or equal highest role than yourself!")) {
-                Utilities.getUtils().error(ctx.getChannel(), "buy", "\uD83D\uDED2", "Couldn't assign this role", "I need to be higher the role", ctx.getAuthor().getEffectiveAvatarUrl());
+                new Error(ctx.getEvent())
+                        .setCommand("buy")
+                        .setEmoji("\uD83D\uDED2")
+                        .setMessage("I couldn't assign this role, my role needs to be higher than the one you tried to buy")
+                        .send();
                 return;
             } else e.printStackTrace();
         }

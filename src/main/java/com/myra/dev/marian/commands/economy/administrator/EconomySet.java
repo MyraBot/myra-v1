@@ -5,7 +5,8 @@ import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
 import com.myra.dev.marian.utilities.Config;
-import com.myra.dev.marian.utilities.EmbedMessage;
+import com.myra.dev.marian.utilities.EmbedMessage.Error;
+import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.Permissions;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -40,13 +41,17 @@ public class EconomySet implements Command {
 
         long amount = Long.parseLong(ctx.getArguments()[1]); // Get amount of money to set/add/remove
         if (amount > Config.ECONOMY_MAX || amount < -Config.ECONOMY_MAX) { // Limit would be reached
-            utilities.error(ctx.getChannel(), "economy set", "\uD83D\uDC5B", "Invalid amount", "You can have an amount of money between +" + Config.ECONOMY_MAX + " and -" + Config.ECONOMY_MAX, ctx.getAuthor().getEffectiveAvatarUrl());
+            new Error(ctx.getEvent())
+                    .setCommand("economy set")
+                    .setEmoji("\uD83D\uDC5B")
+                    .setMessage("You can set an amount of money between +" + Config.ECONOMY_MAX + " and -" + Config.ECONOMY_MAX)
+                    .send();
             return;
         }
 
         // Add balance
         if (ctx.getArguments()[1].matches("[+]\\d+")) { // Amount of money is too much
-                    updatedBalance += Integer.parseInt(ctx.getArguments()[1].substring(1)); // Add balance
+            updatedBalance += Integer.parseInt(ctx.getArguments()[1].substring(1)); // Add balance
         }
         // Subtract balance
         else if (ctx.getArguments()[1].matches("[-]\\d+")) {
@@ -58,22 +63,31 @@ public class EconomySet implements Command {
         }
         // Error
         else {
-            utilities.error(ctx.getChannel(), "economy set", "\uD83D\uDC5B", "Invalid operator", "Please use `+` to add money, `-` to subtract money or leave the operators out to set an exact amount of money", ctx.getAuthor().getEffectiveAvatarUrl());
+            new Error(ctx.getEvent())
+                    .setCommand("economy set")
+                    .setEmoji("\uD83D\uDC5B")
+                    .setMessage("Invalid operator")
+                    .setFooter("Please use `+` to add money, `-` to subtract money or leave the operators out to set an exact amount of money")
+                    .send();
             return;
         }
         // Balance limit would be reached
         if (updatedBalance > Config.ECONOMY_MAX) {
-            utilities.error(ctx.getChannel(), "economy set", "\uD83D\uDC5B", "lol", "The user you want to give the money would be too rich...", ctx.getAuthor().getEffectiveAvatarUrl());
+            new Error(ctx.getEvent())
+                    .setCommand("economy set")
+                    .setEmoji("\uD83D\uDC5B")
+                    .setMessage("No, that's too much money")
+                    .send();
             return;
         }
         // Change balance in database
         db.getMembers().getMember(member).setBalance(updatedBalance);
         // Success
-        EmbedMessage.Success success = new EmbedMessage.Success()
+        Success success = new Success(ctx.getEvent())
                 .setCommand("economy set")
                 .setEmoji("\uD83D\uDC5B")
                 .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl())
                 .setMessage(member.getAsMention() + "has now `" + utilities.formatNumber(updatedBalance) + "` " + db.getNested("economy").getString("currency"));
-        success.send(ctx.getChannel());
+        success.send();
     }
 }

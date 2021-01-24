@@ -7,6 +7,7 @@ import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
 import com.myra.dev.marian.utilities.CommandCooldown;
 import com.myra.dev.marian.utilities.Config;
+import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 
@@ -32,7 +33,11 @@ public class Fish implements Command {
 
         // Balance limit would be reached
         if (db.getInteger("balance") + 7 > Config.ECONOMY_MAX) {
-            Utilities.getUtils().error(ctx.getChannel(), "fish", "\uD83C\uDFA3", "lol", "If you fish a fish you would have to much money...", ctx.getAuthor().getEffectiveAvatarUrl());
+            new Error(ctx.getEvent())
+                    .setCommand("fish")
+                    .setEmoji("\uD83C\uDFA3")
+                    .setMessage("We don't want people to get too rich... What about giving other members money? Then try again!")
+                    .send();
             return;
         }
 

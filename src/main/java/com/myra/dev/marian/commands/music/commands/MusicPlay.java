@@ -5,6 +5,7 @@ import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
 import com.myra.dev.marian.utilities.APIs.GoogleYouTube;
 import com.myra.dev.marian.utilities.APIs.LavaPlayer.PlayerManager;
+import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.MessageReaction;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -41,17 +42,29 @@ public class MusicPlay implements Command {
 // Add a audio track to the queue
         // If bot isn't in a voice channel
         if (!ctx.getGuild().getSelfMember().getVoiceState().inVoiceChannel()) {
-            utilities.error(ctx.getChannel(), "play", "\uD83D\uDCBF", "I need to be in a voice channel", "Use `" + ctx.getPrefix() + "join` to let me join a voice channel", ctx.getAuthor().getEffectiveAvatarUrl());
+            new Error(ctx.getEvent())
+                    .setCommand("play")
+                    .setEmoji("\uD83D\uDCBF")
+                    .setMessage("I need to be in a voice channel")
+                    .send();
             return;
         }
         // If author isn't in a voice channel yet
         if (!ctx.getEvent().getMember().getVoiceState().inVoiceChannel()) {
-            utilities.error(ctx.getChannel(), "play", "\uD83D\uDCBF", "You need to join a voice channel first to use this command", "Use `" + ctx.getPrefix() + "join` to let me join a voice channel", ctx.getAuthor().getEffectiveAvatarUrl());
+            new Error(ctx.getEvent())
+                    .setCommand("play")
+                    .setEmoji("\uD83D\uDCBF")
+                    .setMessage("You need to join a voice channel first to use this command")
+                    .send();
             return;
         }
         // If author isn't in the same voice channel as bot
         if (!ctx.getEvent().getMember().getVoiceState().getChannel().equals(ctx.getGuild().getSelfMember().getVoiceState().getChannel())) {
-            utilities.error(ctx.getChannel(), "play", "\uD83D\uDCBF", "You need to be in the same voice channel as me to use this command", "Join `" + ctx.getGuild().getSelfMember().getVoiceState().getChannel().getName() + "` to use this command", ctx.getAuthor().getEffectiveAvatarUrl());
+            new Error(ctx.getEvent())
+                    .setCommand("play")
+                    .setEmoji("\uD83D\uDCBF")
+                    .setMessage("You need to join the same voice channel as me")
+                    .send();
             return;
         }
         // Get song
@@ -70,12 +83,11 @@ public class MusicPlay implements Command {
             final List<JSONObject> videos = GoogleYouTube.getInstance().searchForVideo(song);
             // Nothing found
             if (videos.isEmpty()) {
-                utilities.error(
-                        ctx.getChannel(),
-                        "play", "\uD83D\uDCBF",
-                        "No results",
-                        "YouTube could not find **" + song + "**",
-                        ctx.getAuthor().getEffectiveAvatarUrl());
+                new Error(ctx.getEvent())
+                        .setCommand("play")
+                        .setEmoji("\uD83D\uDCBF")
+                        .setMessage("No results")
+                        .send();
                 return;
             }
             // Song menu

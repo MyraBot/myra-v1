@@ -3,6 +3,7 @@ package com.myra.dev.marian.commands.music.commands;
 import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
+import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 
@@ -23,25 +24,29 @@ public class MusicLeave implements Command {
 // Errors
         // Not connected to a voice channel
         if (!ctx.getGuild().getAudioManager().isConnected()) {
-            utilities.error(ctx.getChannel(),
-                    "leave", "\uD83D\uDCE4",
-                    "I'm not connected to a voice channel",
-                    "Use `" + ctx.getPrefix() + "join` to connect me to your voice channel",
-                    ctx.getAuthor().getEffectiveAvatarUrl());
+            new Error(ctx.getEvent())
+                    .setCommand("leave")
+                    .setEmoji("\uD83D\uDCE4")
+                    .setMessage("I'm not connected to a voice channel")
+                    .send();
             return;
         }
         // If author isn't in a voice channel yet
         if (!ctx.getEvent().getMember().getVoiceState().inVoiceChannel()) {
-            utilities.error(ctx.getChannel(), "leave", "\uD83D\uDCE4", "You need to join a voice channel first to use this command", "Use `" + ctx.getPrefix() + "join` to let me join a voice channel", ctx.getAuthor().getEffectiveAvatarUrl());
+            new Error(ctx.getEvent())
+                    .setCommand("leave")
+                    .setEmoji("\uD83D\uDCE4")
+                    .setMessage("You need to join a voice channel first to use this command")
+                    .send();
             return;
         }
         // Author isn't in the same voice channel as the bot
         if (!ctx.getGuild().getAudioManager().getConnectedChannel().getMembers().contains(ctx.getEvent().getMember())) {
-            utilities.error(ctx.getChannel(),
-                    "leave", "\uD83D\uDCE4",
-                    "You have to be in the same voice channel as me to use this command",
-                    "To kick me you need to be in **" + ctx.getGuild().getAudioManager().getConnectedChannel().getName() + "**",
-                    ctx.getAuthor().getEffectiveAvatarUrl());
+            new Error(ctx.getEvent())
+                    .setCommand("leave")
+                    .setEmoji("\uD83D\uDCE4")
+                    .setMessage("You have to be in the same voice channel as me to use this command")
+                    .send();
             return;
         }
 // Leave voice channel

@@ -4,6 +4,7 @@ import com.myra.dev.marian.database.MongoDb;
 import com.myra.dev.marian.database.allMethods.Database;
 import com.myra.dev.marian.database.managers.NotificationsTwitchManager;
 import com.myra.dev.marian.utilities.APIs.Twitch;
+import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -39,7 +40,13 @@ public class TwitchNotification {
 
                     // If no notifications channel is set
                     if (channelRaw.equals("not set")) {
-                        Utilities.getUtils().error(guild.getDefaultChannel(), "notifications", "\uD83D\uDD14", "No notifications channel specified", "To set a notifications channel type in `" + db.getString("prefix") + "notification channel <channel>`", guild.getIconUrl());
+                        new Error(null)
+                                .setCommand("notifications")
+                                .setEmoji("\uD83D\uDD14")
+                                .setAvatar(guild.getIconUrl())
+                                .setMessage("No notifications channel specified")
+                                .setChannel(guild.getDefaultChannel())
+                                .send();
                         continue;
                     }
                     TextChannel channel = guild.getTextChannelById(channelRaw); // Get notifications channel
@@ -51,10 +58,15 @@ public class TwitchNotification {
 
                         // If no stream is found
                         if (stream == null) {
-                            Utilities.getUtils().error(channel, "notifications twitch", "\uD83D\uDD14", "No channel found", "**" + streamer + "** doesn't exist anymore", guild.getIconUrl());
+                            new Error(null)
+                                    .setCommand( "notifications twitch")
+                                    .setEmoji("\uD83D\uDD14")
+                                    .setAvatar(guild.getIconUrl())
+                                    .setMessage(String.format("`%s` doesn't exist anymore", streamer))
+                                    .setChannel(guild.getDefaultChannel())
+                                    .send();
                             continue;
                         }
-
 
                         // Streamer is offline
                         if (!stream.getBoolean("is_live")) continue;

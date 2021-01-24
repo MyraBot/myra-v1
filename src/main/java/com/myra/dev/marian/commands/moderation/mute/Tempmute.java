@@ -6,6 +6,7 @@ import com.myra.dev.marian.database.allMethods.Database;
 import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
+import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.Permissions;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -50,12 +51,22 @@ public class Tempmute implements Command {
 
         String muteRoleId = new Database(ctx.getGuild()).getString("muteRole"); //Get mute role id
         if (muteRoleId.equals("not set")) { // No mute role set
-            utilities.error(ctx.getChannel(), "tempmute", "\uD83D\uDD07", "You didn't specify a mute role", "To indicate a mute role, type in `" + ctx.getPrefix() + "mute role <role>`", ctx.getAuthor().getEffectiveAvatarUrl());
+            new Error(ctx.getEvent())
+                    .setCommand("tempmute")
+                    .setEmoji("\uD83D\uDD07")
+                    .setMessage("You didn't specify a mute role")
+                    .setFooter("You can only delete an amount between 1 and 100 messages")
+                    .send();
             return;
         }
         // String is not [NumberLetters]
         if (!ctx.getArguments()[1].matches("[0-9]+[a-zA-z]+")) {
-            utilities.error(ctx.getChannel(), "tempmute", "\uD83D\uDD07", "Invalid time", "please note: `<time><time unit>`", ctx.getAuthor().getEffectiveAvatarUrl());
+            new Error(ctx.getEvent())
+                    .setCommand("tempmute")
+                    .setEmoji("\uD83D\uDD07")
+                    .setMessage("Invalid time")
+                    .setFooter("please note: `<time><time unit>`")
+                    .send();
             return;
         }
 
@@ -146,7 +157,13 @@ public class Tempmute implements Command {
         });
         //if no channel is set
         if (db.getString("logChannel").equals("not set")) {
-            Utilities.getUtils().error(guild.getDefaultChannel(), "tempban", "\u23F1\uFE0F", "No log channel specified", "To set a log channel type in `" + db.getString("prefix") + "log channel <channel>`", author.getEffectiveAvatarUrl());
+            new Error(null)
+                    .setCommand("tempban")
+                    .setEmoji("\u23F1\uFE0F")
+                    .setAvatar(user.getEffectiveAvatarUrl())
+                    .setMessage("No log channel specified")
+                    .setChannel(guild.getDefaultChannel())
+                    .send();
             return;
         }
         //get log channel
@@ -174,48 +191,45 @@ public class Tempmute implements Command {
             if (unmuteTime < System.currentTimeMillis()) {
                 //if member left the server
                 if (event.getJDA().getGuildById(doc.getString("guildId")).getMemberById(doc.getString("userId")) == null) {
-                    //delete document
-                    mongoDb.getCollection("unmutes").deleteOne(doc);
+                    mongoDb.getCollection("unmutes").deleteOne(doc); //delete document
                 }
                 // No mute role set
                 if (new Database(guild).getString("muteRole").equals("not set")) {
-                    // No logging channel set
-                    if (new Database(guild).getString("logChannel").equals("not set")) {
-                        Utilities.getUtils().error(guild.getDefaultChannel(), "tempmute", "\u23F1\uFE0F", "No log channel specified", "To set a log channel type in `" + new Database(guild).getString("prefix") + "log channel <channel>`", guild.getIconUrl());
-                        Utilities.getUtils().error(guild.getDefaultChannel(), "tempmute", "\uD83D\uDD07", "You didn't specify a mute role", "To indicate a mute role, type in `" + new Database(guild).getString("prefix") + "mute role <role>`", guild.getIconUrl());
-                        return;
-                    }
-                    TextChannel logChannel = guild.getTextChannelById((new Database(guild).getString("muteRole")));
-                    Utilities.getUtils().error(logChannel, "tempmute", "\uD83D\uDD07", "You didn't specify a mute role", "To indicate a mute role, type in `" + new Database(guild).getString("prefix") + "mute role <role>`", guild.getIconUrl());
+                    // No mute role set
+                    new Error(null)
+                            .setCommand("tempban")
+                            .setEmoji("\u23F1\uFE0F")
+                            .setAvatar(guild.getIconUrl())
+                            .setMessage("You didn't specify a mute rol")
+                            .setChannel(guild.getDefaultChannel())
+                            .send();
+                    continue;
                 }
-                //remove role
-                guild.removeRoleFromMember(doc.getString("userId"), guild.getRoleById(new Database(guild).getString("muteRole"))).queue();
-                //send unmute message
-                unmuteMessage(event.getJDA().getUserById(doc.getString("userId")), guild, event.getJDA().getUserById(doc.getString("moderatorId")));
-                //delete document
-                mongoDb.getCollection("unmutes").deleteOne(doc);
+                guild.removeRoleFromMember(doc.getString("userId"), guild.getRoleById(new Database(guild).getString("muteRole"))).queue(); // Remove role
+                unmuteMessage(event.getJDA().getUserById(doc.getString("userId")), guild, event.getJDA().getUserById(doc.getString("moderatorId"))); // Send unmute message
+                mongoDb.getCollection("unmutes").deleteOne(doc); // Delete document
                 continue;
             }
-            /**
-             * if unmute time isn't already reached
-             */
-            // Delay
-            Utilities.TIMER.schedule(new Runnable() {
-                @Override
-                public void run() {
-                    //if member left the server
-                    if (event.getJDA().getGuildById(doc.getString("guildId")).getMemberById(doc.getString("userId")) == null) {
+            // User should already be unmuted
+            else {
+                // Delay
+                Utilities.TIMER.schedule(new Runnable() {
+                    @Override
+                    public void run() {
+                        //if member left the server
+                        if (event.getJDA().getGuildById(doc.getString("guildId")).getMemberById(doc.getString("userId")) == null) {
+                            //delete document
+                            mongoDb.getCollection("unmutes").deleteOne(doc);
+                        }
+                        //unmute
+                        guild.removeRoleFromMember(doc.getString("userId"), guild.getRoleById(new Database(guild).getString("muteRole"))).queue();
+                        //send unmute message
+                        unmuteMessage(event.getJDA().getUserById(doc.getString("userId")), guild, event.getJDA().getUserById(doc.getString("moderatorId")));
                         //delete document
                         mongoDb.getCollection("unmutes").deleteOne(doc);
                     }
-                    //unmute
-                    guild.removeRoleFromMember(doc.getString("userId"), guild.getRoleById(new Database(guild).getString("muteRole"))).queue();
-                    //send unmute message
-                    unmuteMessage(event.getJDA().getUserById(doc.getString("userId")), guild, event.getJDA().getUserById(doc.getString("moderatorId")));
-                    //delete document
-                    mongoDb.getCollection("unmutes").deleteOne(doc);
-                }
-            }, doc.getLong("unmuteTime") - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
+                }, doc.getLong("unmuteTime") - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
+            }
         }
     }
 }

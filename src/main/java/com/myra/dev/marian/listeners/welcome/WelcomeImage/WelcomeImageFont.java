@@ -4,7 +4,8 @@ import com.myra.dev.marian.database.allMethods.Database;
 import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
-import com.myra.dev.marian.utilities.EmbedMessage;
+import com.myra.dev.marian.utilities.EmbedMessage.Error;
+import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.Permissions;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -52,28 +53,33 @@ public class WelcomeImageFont implements Command {
                         final Database db = new Database(e.getGuild()); // Get database
                         final String reaction = e.getReactionEmote().getEmoji(); // Get reacted emoji
 
-                        EmbedMessage.Success success = new EmbedMessage.Success()
+                        Success success = new Success(ctx.getEvent())
                                 .setCommand("welcome image font")
                                 .setEmoji("\uD83D\uDDDB")
                                 .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl());
                         // Fonts
                         if (reaction.equals(emojis[0])) {
                             db.getNested("welcome").setString("welcomeImageFont", "default"); // Update database
-                            success.setMessage("You have changed the font to `default`").send(ctx.getChannel());
+                            success.setMessage("You have changed the font to `default`").send();
                         }
                         if (reaction.equals(emojis[1])) {
                             db.getNested("welcome").setString("welcomeImageFont", "modern"); // Update database
-                            success.setMessage("You have changed the font to `modern`").send(ctx.getChannel());
+                            success.setMessage("You have changed the font to `modern`").send();
                         }
                         if (reaction.equals(emojis[2])) {
                             db.getNested("welcome").setString("welcomeImageFont", "handwritten"); // Update database
-                            success.setMessage("You have changed the font to `handwritten`").send(ctx.getChannel());
+                            success.setMessage("You have changed the font to `handwritten`").send();
                         }
                     },
                     30, TimeUnit.SECONDS,
                     () -> { // Run on timeout
                         message.clearReactions().queue(); // Clear reactions
-                        utilities.error(ctx.getChannel(), "welcome image font", "\uD83D\uDDDB", "Too slow", "You took too long to react", ctx.getAuthor().getEffectiveAvatarUrl()); // Error
+                        // Send timeout error
+                        new Error(ctx.getEvent())
+                                .setCommand("welcome image font")
+                                .setEmoji("\uD83D\uDDDB")
+                                .setMessage("You took too long to react")
+                                .send();
                     }
             );
         });

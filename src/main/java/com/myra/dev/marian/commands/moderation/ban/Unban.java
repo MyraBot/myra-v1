@@ -4,6 +4,7 @@ package com.myra.dev.marian.commands.moderation.ban;
 import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
+import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.Permissions;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -37,7 +38,11 @@ public class Unban implements Command {
         ctx.getGuild().retrieveBanList().queue(bans -> {
             // User isn't banned
             if (!bans.stream().anyMatch(ban -> ban.getUser().equals(user))) {
-                Utilities.getUtils().error(ctx.getChannel(), "unban", "\uD83D\uDD13", "User isn't banned", "The mentioned user is not banned", ctx.getAuthor().getEffectiveAvatarUrl());
+                new Error(ctx.getEvent())
+                        .setCommand("unban")
+                        .setEmoji("\uD83D\uDD13")
+                        .setMessage("This user isn't banned")
+                        .send();
                 return;
             }
 

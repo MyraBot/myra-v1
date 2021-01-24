@@ -5,7 +5,7 @@ import com.myra.dev.marian.management.Manager;
 import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
-import com.myra.dev.marian.utilities.EmbedMessage;
+import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.Permissions;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -43,11 +43,11 @@ public class Currency implements Command {
         // Update database
         db.getNested("economy").set("currency", currency, Manager.type.STRING);
         // Send success message
-        EmbedMessage.Success success = new EmbedMessage.Success()
+        Success success = new Success(ctx.getEvent())
                 .setCommand("economy currency")
                 .setEmoji(currency)
                 .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl())
                 .setMessage("Changed currency to " + currency);
-        success.send(ctx.getChannel());
+        success.send();
     }
 }

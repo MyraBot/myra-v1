@@ -6,7 +6,8 @@ import com.myra.dev.marian.management.Manager;
 import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
-import com.myra.dev.marian.utilities.EmbedMessage;
+import com.myra.dev.marian.utilities.EmbedMessage.Error;
+import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.Permissions;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -45,7 +46,11 @@ public class Toggle implements Command {
             if (Arrays.stream(entry.getValue().aliases()).anyMatch(command::equalsIgnoreCase) || command.equalsIgnoreCase(entry.getValue().name())) {
                 // Command is a help command
                 if (entry.getKey().getClass().getPackage().equals(Help.class.getPackage())) {
-                    utilities.error(ctx.getChannel(), "toggle", "\uD83D\uDD11", "Can't toggle this command", "You can't toggle `help` commands", ctx.getAuthor().getEffectiveAvatarUrl());
+                    new Error(ctx.getEvent())
+                            .setCommand("toggle")
+                            .setEmoji("\uD83D\uDD11")
+                            .setMessage("You can't toggle `help` commands")
+                            .send();
                     return;
                 }
                 Database db = new Database(ctx.getGuild());
@@ -56,7 +61,7 @@ public class Toggle implements Command {
                 // Update database
                 db.getNested("commands").set(command, newValue, Manager.type.BOOLEAN);
                 // Success information
-                EmbedMessage.Success success = new EmbedMessage.Success()
+                Success success = new Success(ctx.getEvent())
                         .setCommand("toggle")
                         .setEmoji("\uD83D\uDD11")
                         .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl());
@@ -65,7 +70,11 @@ public class Toggle implements Command {
                 return;
             }
         // Command doesn't exist
-        utilities.error(ctx.getChannel(), "toggle", "\uD83D\uDD11", "Couldn't find command", "The command doesn't exist", ctx.getAuthor().getEffectiveAvatarUrl());
+        new Error(ctx.getEvent())
+                .setCommand("toggle")
+                .setEmoji("\uD83D\uDD11")
+                .setMessage("The command doesn't exist")
+                .send();
         return;
     }
 }

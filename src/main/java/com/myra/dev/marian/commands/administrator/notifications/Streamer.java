@@ -5,6 +5,7 @@ import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
 import com.myra.dev.marian.utilities.APIs.Twitch;
+import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.Permissions;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -37,7 +38,11 @@ public class Streamer implements Command {
                 .setColor(Utilities.getUtils().blue);
         // No streamer found
         if (channelInformation == null) {
-            Utilities.getUtils().error(ctx.getChannel(), "notification twitch", "\uD83D\uDCF9", "No streamer found", "Couldn't found the given streamer", ctx.getAuthor().getEffectiveAvatarUrl());
+            new Error(ctx.getEvent())
+                    .setCommand("notifications twitch")
+                    .setEmoji("\uD83D\uDCF9")
+                    .setMessage("No streamer found")
+                    .send();
             return;
         }
 

@@ -15,13 +15,13 @@ public class WelcomeEmbedRender {
         Database db = new Database(guild); // Get database
         // Get variables
         String welcomeColour = db.getNested("welcome").getString("welcomeColour"); // Get colour
-        String welcomeEmbedMessage = db.getNested("welcome").getString("welcomeEmbedMessage"); // Get message
+        String welcome = db.getNested("welcome").getString("welcome"); // Get message
         // Return message embed
         return new EmbedBuilder()
                 .setAuthor("welcome", null, guild.getIconUrl())
                 .setColor(Color.decode(welcomeColour))
                 .setThumbnail(user.getEffectiveAvatarUrl())
-                .setDescription(welcomeEmbedMessage
+                .setDescription(welcome
                         .replace("{user}", user.getAsMention())
                         .replace("{server}", guild.getName())
                         .replace("{count}", Integer.toString(guild.getMemberCount()))
