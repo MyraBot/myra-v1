@@ -2,13 +2,11 @@ package com.myra.dev.marian.management;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.myra.dev.marian.Bot;
-import com.myra.dev.marian.commands.Leaderboard;
 import com.myra.dev.marian.commands.administrator.notifications.NotificationsList;
 import com.myra.dev.marian.commands.economy.blackjack.BlackJack;
 import com.myra.dev.marian.commands.general.Reminder;
 import com.myra.dev.marian.commands.general.information.InformationServer;
 import com.myra.dev.marian.commands.help.InviteThanks;
-import com.myra.dev.marian.commands.leveling.Background;
 import com.myra.dev.marian.commands.moderation.ban.Tempban;
 import com.myra.dev.marian.commands.moderation.mute.MutePermissions;
 import com.myra.dev.marian.commands.moderation.mute.Tempmute;
@@ -115,7 +113,6 @@ public class Listeners extends ListenerAdapter {
     public void onReady(@Nonnull ReadyEvent event) {
         try {
             new MongoDbUpdate().updateDatabase(event); // Update database
-
             while (!ready) {
                 try {
                     TimeUnit.SECONDS.sleep(10);
