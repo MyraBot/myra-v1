@@ -153,7 +153,8 @@ public class CommandEmbeds {
                 .addField("`" + prefix + "leveling`", "\uD83C\uDFC6 │ Change some settings of leveling", false)
                 .addField("`" + prefix + "economy`", "\uD83D\uDCB0 │ Change some settings of economy", false)
                 .addField("`" + prefix + "global chat <channel>`", "\uD83C\uDF10 │ Communicate with other servers", false)
-                .addField("`" + prefix + "reaction roles`", "\uD83C\uDF80 │ Bind roles to reactions", false);
+                .addField("`" + prefix + "reaction roles`", "\uD83C\uDF80 │ Bind roles to reactions", false)
+                .addField("`" + prefix + "music voting`", "\uD83D\uDDF3 │ Enable/Disable voting on some music commands", false);
     }
 
 

@@ -3,6 +3,7 @@ package com.myra.dev.marian.management.commands;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -42,6 +43,14 @@ public interface CommandService {
      * @return A key-value system with all registered commands.
      */
     Map<Command, CommandSubscribe> getCommands();
+
+    /**
+     * Retrieves the executors of a command as a list.
+     *
+     * @param clazz The class to get the executors from.
+     * @return A List with all executors.
+     */
+    List<String> getCommandExecutors(Class<? extends Command> clazz);
 
     /**
      * Processes the execution of the registered commands.

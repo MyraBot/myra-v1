@@ -1,7 +1,6 @@
 package com.myra.dev.marian.management.commands;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
-import com.myra.dev.marian.Bot;
 import com.myra.dev.marian.database.MongoDb;
 import com.myra.dev.marian.database.allMethods.Database;
 import com.myra.dev.marian.utilities.Config;
@@ -13,10 +12,8 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.bson.Document;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.Array;
+import java.util.*;
 
 import static com.mongodb.client.model.Filters.eq;
 
@@ -73,6 +70,20 @@ public class DefaultCommandService implements CommandService {
     @Override
     public Map<Command, CommandSubscribe> getCommands() {
         return this.commands;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<String> getCommandExecutors(Class<? extends Command> clazz) {
+        final CommandSubscribe commandInfo = clazz.getAnnotation(CommandSubscribe.class);
+
+        final List<String> executors = new ArrayList<>();
+        executors.add(commandInfo.name());
+        executors.addAll(Arrays.asList(commandInfo.aliases()));
+
+        return executors;
     }
 
     /**

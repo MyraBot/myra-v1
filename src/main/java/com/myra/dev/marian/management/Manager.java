@@ -101,7 +101,6 @@ public class Manager {
         // Register commands
         COMMAND_SERVICE.register(
                 // Marian
-                new Dm(),
                 new TestCommand(),
                 new SetGuildPremium(),
                 new MariansDiscordEmbeds(),
@@ -113,6 +112,7 @@ public class Manager {
                 new Say(),
                 new Toggle(),
                 new GlobalChatChannel(),
+                new MusicVotingToggle(),
 
                 new ReactionRolesHelp(),
                 new ReactionRolesAdd(),
@@ -195,7 +195,7 @@ public class Manager {
                 new Kick(),
                 new Nick(),
                 // Music
-/*                new MusicHelp(),
+                new MusicHelp(),
                 new MusicJoin(),
                 new MusicLeave(),
                 new MusicPlay(),
@@ -206,7 +206,7 @@ public class Manager {
                 new MusicQueue(),
                 new MusicSkip(),
                 new MusicClearQueue(),
-                new MusicController(),*/
+                new MusicController(),
                 // Autorole
                 new AutoRoleSet(),
                 // Notification
@@ -214,8 +214,9 @@ public class Manager {
                 new NotificationsChannel(),
                 new NotificationsList(),
 
-                new YouTuber(),
+                new NotificationsMessageHelp(),
                 new Streamer(),
+                new YouTuber(),
                 // Welcome
                 new WelcomeHelp(),
                 new WelcomePreview(),
