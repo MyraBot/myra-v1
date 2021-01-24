@@ -1,7 +1,7 @@
 package com.myra.dev.marian.database.allMethods;
 
 import com.myra.dev.marian.database.MongoDb;
-import com.myra.dev.marian.utilities.EmbedMessage;
+import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.bson.Document;
@@ -19,35 +19,37 @@ public class GetListenerManager {
         this.guild = guild;
     }
 
+
     /**
-     * methods
+     * Check if listener is enabled
+     *
+     * @param listener The command to check if its enabled or disabled.
+     * @return Returns if the {@param listener} is enabled or disabled as a boolean value.
+     * @throws Exception
      */
-    //check if listener is enabled
-    public Boolean check(String command) throws Exception {
-        //get listener object
-        Document listeners = (Document) mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first().get("listeners");
-        //return value of listener
-        return listeners.getBoolean(command);
+    public Boolean check(String listener) throws Exception {
+        final Document listeners = (Document) mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first().get("listeners");  // Get listener object
+        return listeners.getBoolean(listener);  // Return value of listener
     }
 
-    //toggle listener
-    public void toggle(String listener, String commandEmoji, GuildMessageReceivedEvent event) {
-        //get guildDocument
-        Document updatedDocument = mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first();
-        //get listener object
-        Document listeners = (Document) updatedDocument.get("listeners");
-        //get new value of listener
-        boolean newValue = !listeners.getBoolean(listener);
-        //replace String
-        listeners.replace(listener, newValue);
-        //replace guild Document
-        mongoDb.getCollection("guilds").findOneAndReplace(mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first(), updatedDocument);
-        //success information
-        EmbedMessage.Success success = new EmbedMessage.Success()
+    /**
+     * Toggle a listener on or off.
+     * @param listener The listener to toggle.
+     * @param listenerEmoji The emoji of the listener.
+     * @param event The GuildMessageReceivedEvent.
+     */
+    public void toggle(String listener, String listenerEmoji, GuildMessageReceivedEvent event) {
+        final Document updatedDocument = mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first(); // Get guild document
+        final Document listeners = updatedDocument.get("listeners", Document.class); // Get listener document
+        final boolean newValue = !listeners.getBoolean(listener); // Get new value of listener
+        listeners.replace(listener, newValue); // Replace value
+        mongoDb.getCollection("guilds").findOneAndReplace(mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first(), updatedDocument); // Update guild document
+        // Success information
+        Success success = new Success(event)
                 .setCommand(listener)
-                .setEmoji(commandEmoji)
+                .setEmoji(listenerEmoji)
                 .setAvatar(event.getAuthor().getEffectiveAvatarUrl());
-        if (newValue) success.setMessage("`" + listener + "` got toggled on").send(event.getChannel());
-        else success.setMessage("`" + listener + "` got toggled off").send(event.getChannel());
+        if (newValue) success.setMessage("`" + listener + "` got toggled on").send();
+        else success.setMessage("`" + listener + "` got toggled off").send();
     }
 }
