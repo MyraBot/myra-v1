@@ -3,15 +3,23 @@ package com.myra.dev.marian.utilities.EmbedMessage;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class CommandUsage {
+    private final GuildMessageReceivedEvent e;
+
+    public CommandUsage(GuildMessageReceivedEvent e) {
+        this.e = e;
+    }
+
     private String command;
     private String avatar;
     private List<Usage> usages = new ArrayList<>();
+    private TextChannel channel;
 
     public CommandUsage setCommand(String command) {
         this.command = command;
@@ -23,15 +31,24 @@ public class CommandUsage {
         return this;
     }
 
-    public CommandUsage addCommand(Usage... usages) {
+    public CommandUsage addUsages(Usage... usages) {
         this.usages.addAll(Arrays.asList(usages));
         return this;
     }
 
+    public CommandUsage setChannel(TextChannel channel) {
+        this.channel = channel;
+        return this;
+    }
 
-    public void send(TextChannel channel) {
+    public void send() {
+        // Get avatar
+        String avatar;
+        if (this.avatar == null) avatar = this.e.getAuthor().getEffectiveAvatarUrl();
+        else avatar = this.avatar;
+
         EmbedBuilder embed = new EmbedBuilder()
-                .setAuthor(this.command, null, this.avatar)
+                .setAuthor(this.command, null, avatar)
                 .setColor(Utilities.getUtils().blue);
         // Add all commands usages
         usages.forEach(usage -> {
@@ -40,7 +57,9 @@ public class CommandUsage {
                     String.format("%s │ %s", usage.getEmoji(), usage.getDescription()),
                     false);
         });
+
         // Send command usage
-        channel.sendMessage(embed.build()).queue();
+        if (this.channel == null) this.e.getChannel().sendMessage(embed.build()).queue();
+        else this.channel.sendMessage(embed.build()).queue();
     }
 }
