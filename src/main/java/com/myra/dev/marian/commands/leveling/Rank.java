@@ -6,6 +6,7 @@ import com.myra.dev.marian.management.Manager;
 import com.myra.dev.marian.management.commands.Command;
 import com.myra.dev.marian.management.commands.CommandContext;
 import com.myra.dev.marian.management.commands.CommandSubscribe;
+import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.Graphic;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -18,7 +19,6 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.nio.Buffer;
 
 @CommandSubscribe(
         command = "rank",
@@ -43,18 +43,17 @@ public class Rank implements Command {
         Member member = ctx.getMember();
         // If user is given
         if (ctx.getArguments().length == 1) {
-            User user = utilities.getUser(ctx.getEvent(), ctx.getArguments()[0], "rank", "\uD83C\uDFC5");
-            if (user == null) return;
-            //check if user isn't in this guild
-            if (ctx.getGuild().getMember(user) == null) {
-                utilities.error(ctx.getChannel(), "rank", "\uD83C\uDFC5", "No member found", "the given user isn't on this server", ctx.getAuthor().getEffectiveAvatarUrl());
-                return;
-            }
-            member = ctx.getGuild().getMember(user);
+            Member mentionedMember = utilities.getMember(ctx.getEvent(), ctx.getArguments()[0], "rank", "\uD83C\uDFC5");
+            if (mentionedMember == null) return;
+            member = mentionedMember;
         }
         //if member is bot
         if (member.getUser().isBot()) {
-            Utilities.getUtils().error(ctx.getChannel(), "rank", "\uD83C\uDFC5", member.getEffectiveName() + " is a bot", "Bots aren't allowed to participate in the ranking competition", ctx.getAuthor().getEffectiveAvatarUrl());
+            new Error(ctx.getEvent())
+                    .setCommand("rank")
+                    .setEmoji("\uD83C\uDFC5")
+                    .setMessage("Bots aren't allowed to participate in the ranking competition")
+                    .send();
             return;
         }
         final GetMember getMember = new Database(member.getGuild()).getMembers().getMember(member); // Get member in database
