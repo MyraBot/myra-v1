@@ -208,13 +208,9 @@ public class Utilities {
     public Member getMember(GuildMessageReceivedEvent event, String providedUser, String command, String commandEmoji) {
         Member member = null;
 
-        // Role given by id or mention
+        // Member given by id or mention
         if (providedUser.startsWith("<@") || providedUser.matches("\\d+")) {
-            member = event.getGuild().getMemberById(providedUser.replaceAll("[<@!>]", ""));
-        }
-        // Role given by name
-        if (!event.getGuild().getMembersByEffectiveName(providedUser, true).isEmpty()) {
-            member = event.getGuild().getMembersByEffectiveName(providedUser, true).get(0);
+            member = event.getGuild().retrieveMemberById(providedUser.replaceAll("[<@!>]", "")).complete();
         }
         // No role given
         if (member == null) {
@@ -237,9 +233,9 @@ public class Utilities {
         User user;
         final JDA jda = event.getJDA();
 
-        // Role given by id or mention
+        // User given by id or mention
         if (providedUser.startsWith("<@") || providedUser.matches("\\d+")) {
-            user = jda.getUserById(providedUser.replaceAll("[<@!>]", ""));
+            user = jda.retrieveUserById(providedUser.replaceAll("[<@!>]", "")).complete();
         }
         // Role given by name
         else if (!jda.getUsersByName(providedUser, true).isEmpty()) {
