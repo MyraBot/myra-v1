@@ -81,7 +81,7 @@ public class MongoDbDocuments {
                 .append("welcomeColour", String.format("0x%06X", (0xFFFFFF & Utilities.getUtils().blue)))
                 .append("welcomeImageBackground", "not set")
                 .append("welcomeImageFont", "default")
-                .append("welcomeEmbedMessage", "Welcome {user} to {server}! Enjoy your stay")
+                .append("welcome", "Welcome {user} to {server}! Enjoy your stay")
                 .append("welcomeDirectMessage", "Welcome {user} to {server}! Enjoy your stay");
 // Insert document
         //create Document
