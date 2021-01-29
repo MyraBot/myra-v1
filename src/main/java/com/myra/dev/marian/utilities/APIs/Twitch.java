@@ -63,24 +63,23 @@ public class Twitch {
         Request channel = new Request.Builder()
                 .addHeader("client-id", Utilities.getUtils().twitchClientId)
                 .addHeader("Authorization", "Bearer " + Twitch.accessToken)
-                .url("https://api.twitch.tv/helix/search/channels?query=" + name)
+                .url("https://api.twitch.tv/helix/users?login=" + name.toLowerCase())
                 .build();
         //execute call
-        String channelOutput = null;
+        String channelOutput;
         try (Response channelResponse = Utilities.HTTP_CLIENT.newCall(channel).execute()) {
             channelOutput = channelResponse.body().string();
         }
-        //create Json object
-        JSONObject JsonChannel = new JSONObject(channelOutput);
-        //if no channel found
-        if (JsonChannel.getJSONArray("data").length() == 0) {
-            System.out.println("no user found");
-            return new JSONObject();
-        }
-        JSONObject channelData = JsonChannel.getJSONArray("data").getJSONObject(0);
-        //search values
-        String user = channelData.getString("display_name");
-        String profilePicture = channelData.getString("thumbnail_url");
+
+        JSONObject jsonChannel = new JSONObject(channelOutput); // Create Json object
+
+        // If no channel found
+        if (jsonChannel.getJSONArray("data").length() == 0) return null;
+
+        JSONObject channelData = jsonChannel.getJSONArray("data").getJSONObject(0);
+
+        String user = channelData.getString("display_name"); // Get display name
+        String profilePicture = channelData.getString("profile_image_url"); // Get profile picture
         return new JSONObject().put("user", user).put("profilePicture", profilePicture);
     }
 
