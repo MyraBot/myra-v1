@@ -10,7 +10,7 @@ import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.Permissions;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.Member;
 
 @CommandSubscribe(
         name = "leveling set",
@@ -34,10 +34,10 @@ public class LevelingSet implements Command {
         // Get database
         Database db = new Database(ctx.getGuild());
         //get provided member
-        User user = utilities.getUser(ctx.getEvent(), ctx.getArguments()[0], "leveling set", "\uD83C\uDFC6");
-        if (user == null) return;
+        Member member = utilities.getMember(ctx.getEvent(), ctx.getArguments()[0], "leveling set", "\uD83C\uDFC6");
+        if (member == null) return;
         // When user is a bot
-        if (user.isBot()) {
+        if (member.getUser().isBot()) {
             new Error(ctx.getEvent())
                     .setCommand("leveling set")
                     .setEmoji("\uD83C\uDFC6")
@@ -47,17 +47,17 @@ public class LevelingSet implements Command {
         }
 
         // Update database
-        db.getMembers().getMember(ctx.getGuild().getMember(user)).setInteger("level", Integer.parseInt(ctx.getArguments()[1])); // Update level
-        db.getMembers().getMember(ctx.getGuild().getMember(user)).setInteger("xp", leveling.xpFromLevel(Integer.parseInt(ctx.getArguments()[1]))); // Update xp
+        db.getMembers().getMember(member).setInteger("level", Integer.parseInt(ctx.getArguments()[1])); // Update level
+        db.getMembers().getMember(member).setInteger("xp", leveling.xpFromLevel(Integer.parseInt(ctx.getArguments()[1]))); // Update xp
 
         //send success message
         new Success(ctx.getEvent())
                 .setCommand("leveling set")
                 .setEmoji("\uD83C\uDFC6")
                 .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl())
-                .setMessage(user.getAsMention() + " is now level `" + ctx.getArguments()[1] + "`")
+                .setMessage(member.getAsMention() + " is now level `" + ctx.getArguments()[1] + "`")
                 .send();
         // CHeck for leveling roles
-        leveling.levelingRoles(ctx.getGuild(), ctx.getGuild().getMember(user), new Database(ctx.getGuild()).getMembers().getMember(ctx.getGuild().getMember(user)));
+        leveling.levelingRoles(ctx.getGuild(), member, new Database(ctx.getGuild()).getMembers().getMember(member));
     }
 }
