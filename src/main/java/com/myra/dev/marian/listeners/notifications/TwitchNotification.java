@@ -25,7 +25,6 @@ public class TwitchNotification {
         final int start = 5 - LocalDateTime.now().getMinute() % 5;
 
         Utilities.TIMER.scheduleAtFixedRate(() -> {   // Loop
-
             try {
                 final Iterator<Guild> guilds = event.getJDA().getGuilds().iterator(); // Create an iterator for the guilds
                 while (guilds.hasNext()) { // Loop through every guild
@@ -56,15 +55,9 @@ public class TwitchNotification {
                     for (String streamer : streamers) {
                         JSONObject stream = new Twitch().getStream(streamer); // Get stream information
 
-                        // If no stream is found
+                        // Streamer is not found
                         if (stream == null) {
-                            new Error(null)
-                                    .setCommand( "notifications twitch")
-                                    .setEmoji("\uD83D\uDD14")
-                                    .setAvatar(guild.getIconUrl())
-                                    .setMessage(String.format("`%s` doesn't exist anymore", streamer))
-                                    .setChannel(guild.getDefaultChannel())
-                                    .send();
+                            NotificationsTwitchManager.getInstance().removeStreamer(guild, streamer); // Remove streamer
                             continue;
                         }
 
@@ -75,7 +68,7 @@ public class TwitchNotification {
                         final ZonedDateTime date = ZonedDateTime.parse(stream.getString("started_at"));
                         long publishedAtInMillis = date.toInstant().toEpochMilli(); // Get stream start in milliseconds
 
-                        // Last twitch check was already made when the video came out
+                        // Last twitch check was already made when the stream started
                         final Long lastCheck = MongoDb.getInstance().getCollection("config").find().first().getLong("twitch refresh");
                         if (lastCheck >= publishedAtInMillis) continue;
 
@@ -85,18 +78,30 @@ public class TwitchNotification {
                         final String title = stream.getString("title"); // Get stream title
                         final String thumbnail = stream.getString("thumbnail_url"); // Get profile picture
                         final String preview = String.format("https://static-cdn.jtvnw.net/previews-ttv/live_user_%s-440x248.jpg", name); // Get preview image
+                        String game = ""; // Create variable to store game name
+                        if (!stream.getString("game_id").equals("0")) { // Streamer set a game
+                            game = new Twitch().getGame(stream.getString("game_id")); // initialize game
+                        }
+
+                        // Send message
+                        final String messageRaw = db.getNested("notifications").getString("twitchMessage");
+                        if (!messageRaw.equals("not set")) {
+                            final String message = messageRaw
+                                    .replace("{streamer}", name)
+                                    .replace("{title}", title)
+                                    .replace("{game}", game);
+
+                            channel.sendMessage(message).queue();
+                        }
+
                         // Create embed
                         EmbedBuilder notification = new EmbedBuilder()
                                 .setAuthor(name, "https://www.twitch.tv/" + name, thumbnail)
                                 .setColor(Utilities.getUtils().blue)
-                                .setDescription(Utilities.getUtils().hyperlink(title, String.format("https://www.twitch.tv/%s", name)) + "\n")
+                                .setDescription(Utilities.getUtils().hyperlink(title, String.format("https://www.twitch.tv/%s", name)) + "\n" + game)
                                 .setThumbnail(thumbnail)
                                 .setImage(preview)
                                 .setTimestamp(date.toInstant());
-                        // If streamer set a game
-                        if (!stream.getString("game_id").equals("0")) {
-                            notification.appendDescription(new Twitch().getGame(stream.getString("game_id"))); // Add game to notification
-                        }
                         channel.sendMessage(notification.build()).queue(); // Send stream notification
                     }
                 }

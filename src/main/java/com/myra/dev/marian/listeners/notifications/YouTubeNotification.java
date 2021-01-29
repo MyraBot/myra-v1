@@ -61,7 +61,7 @@ public class YouTubeNotification {
                             final String videoId = videoInformation.getJSONObject("id").getString("videoId"); // Get video id
 
                             // Get upload time
-                            final ZonedDateTime date = ZonedDateTime.parse(video.getString("publishedAt").toString());
+                            final ZonedDateTime date = ZonedDateTime.parse(video.getString("publishedAt"));
                             long publishedAtInMillis = date.toInstant().toEpochMilli(); // Get upload time in milliseconds
 
                             // Last youtube check was already made when the video came out
@@ -75,6 +75,17 @@ public class YouTubeNotification {
                             final String channelName = video.getString("channelTitle");
                             final String title = video.getString("title"); // Get video title
                             final String thumbnail = video.getJSONObject("thumbnails").getJSONObject("medium").getString("url"); // Get thumbnail image
+
+                            // Send message
+                            final String messageRaw = db.getNested("notifications").getString("youtubeMessage");
+                            if (!messageRaw.equals("not set")) {
+                                final String message = messageRaw
+                                        .replace("{youtuber}", channelName)
+                                        .replace("{title}", title);
+
+                                channel.sendMessage(message).queue();
+                            }
+
                             // Create embed
                             EmbedBuilder notification = new EmbedBuilder()
                                     .setAuthor(channelName, "https://www.youtube.com/watch?v=" + videoId, profilePicture)
