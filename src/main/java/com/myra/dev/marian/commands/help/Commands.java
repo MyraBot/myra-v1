@@ -39,14 +39,13 @@ public class Commands implements Command {
             message.addReaction(emojis[5]).queue(); // Music
             message.addReaction(emojis[6]).queue(); // Moderation
             message.addReaction(emojis[7]).queue(); // Administrator
-
             // Event waiter
             ctx.waiter().waitForEvent(
                     GuildMessageReactionAddEvent.class, // Event to wait
                     e -> // Requirements
                             !e.getUser().isBot() // No bot
                                     && e.getMessageId().equals(message.getId()) // Same message
-                                    && e.getUser() == ctx.getAuthor() // Same author
+                                    && e.getUserIdLong() == ctx.getAuthor().getIdLong() // Same author
                                     && Arrays.stream(emojis).anyMatch(e.getReactionEmote().getEmoji()::equals), // matching emoji
 
                     e -> { // on event
