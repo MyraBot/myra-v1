@@ -36,7 +36,9 @@ public class Streamer implements Command {
             new Error(ctx.getEvent())
                     .setCommand("notifications twitch")
                     .setEmoji("\uD83D\uDCE1")
-                    .setMessage("No streamer found")
+                    .setMessage("No streamer found" +
+                            "\nTry using the end of the url!" +
+                            "\nExample: www.twitch.tv/**m5rian**")
                     .send();
             return;
         }
