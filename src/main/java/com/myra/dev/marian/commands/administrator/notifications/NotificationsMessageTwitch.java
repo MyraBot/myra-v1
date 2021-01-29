@@ -28,7 +28,7 @@ public class NotificationsMessageTwitch implements Command {
                                     .setEmoji("\uD83D\uDCE1"))
                     .addInformation(String.format("Use variables to customize your message%n" +
                             "%n{streamer} - Name of streamer" +
-                            "%n{title} - Title of stream&n" +
+                            "%n{title} - Title of stream" +
                             "%n{game} - Game which is played on stream"))
                     .send();
             return;
