@@ -216,7 +216,9 @@ public class Manager {
 
                 new NotificationsMessageHelp(),
                 new Streamer(),
+                new NotificationsMessageTwitch(),
                 new YouTuber(),
+                new NotificationsMessageYoutube(),
                 // Welcome
                 new WelcomeHelp(),
                 new WelcomePreview(),
