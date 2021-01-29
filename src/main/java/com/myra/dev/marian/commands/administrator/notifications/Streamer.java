@@ -32,6 +32,14 @@ public class Streamer implements Command {
         }
 // Add or remove streamer
         final JSONObject channelInformation = new Twitch().getChannel(ctx.getArguments()[0]); // Get channel information
+        if (channelInformation == null) {
+            new Error(ctx.getEvent())
+                    .setCommand("notifications twitch")
+                    .setEmoji("\uD83D\uDCE1")
+                    .setMessage("No streamer found")
+                    .send();
+            return;
+        }
         // Create embed
         EmbedBuilder streamer = new EmbedBuilder()
                 .setAuthor("streamers", null, ctx.getAuthor().getEffectiveAvatarUrl())
