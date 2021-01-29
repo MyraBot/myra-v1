@@ -25,7 +25,7 @@ public class YouTuber implements Command {
             EmbedBuilder usage = new EmbedBuilder()
                     .setAuthor("notification youtube")
                     .setColor(Utilities.getUtils().gray)
-                    .addField("`" + ctx.getPrefix() + "notifications youtube <youtube channel>`", "\uD83D\uDCFA │ Add and remove auto notifications for YouTube", false);
+                    .addField("`" + ctx.getPrefix() + "notifications youtube <youtube channel>`", "\\\uD83D\uDCFA │ Add and remove auto notifications for YouTube", false);
             ctx.getChannel().sendMessage(usage.build()).queue();
             return;
         }

@@ -16,8 +16,8 @@ import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEve
 import java.util.List;
 
 @CommandSubscribe(
-        name = "notification list",
-        aliases = {"notifications list"},
+        name = "notifications list",
+        aliases = {"notification list"},
         requires = Permissions.ADMINISTRATOR
 )
 public class NotificationsList implements Command {
@@ -87,7 +87,7 @@ public class NotificationsList implements Command {
 // Get youtubers
             // No streamer has been set up yet
             if (NotificationsYoutubeManager.getInstance().getYoutubers(event.getGuild()).isEmpty()) {
-                list.addField("\uD83D\uDCFA │ YouTubers:", "No youtubers have been set up yet", false);
+                list.addField("\\\uD83D\uDCFA │ YouTubers:", "No youtubers have been set up yet", false);
             }
             // Youtubers have been set up
             else {
@@ -96,7 +96,7 @@ public class NotificationsList implements Command {
                     final String channelName = GoogleYouTube.getInstance().getChannelById(youtuberId).getString("title"); // Get youtube channel name
                     youtubers += "• " + channelName + "\n";
                 }
-                list.addField("\uD83D\uDCFA │ YouTubers:", youtubers, false);
+                list.addField("\\\uD83D\uDCFA │ YouTubers:", youtubers, false);
             }
             event.retrieveMessage().complete().editMessage(list.build()).queue(); // Edit message
         }
