@@ -1,6 +1,5 @@
 package com.myra.dev.marian.utilities.EmbedMessage;
 
-import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -18,7 +17,8 @@ public class CommandUsage {
 
     private String command;
     private String avatar;
-    private List<Usage> usages = new ArrayList<>();
+    private final List<Usage> usages = new ArrayList<>();
+    private String information = "";
     private TextChannel channel;
 
     public CommandUsage setCommand(String command) {
@@ -36,6 +36,12 @@ public class CommandUsage {
         return this;
     }
 
+    public CommandUsage addInformation(String information) {
+        this.information += information;
+        return this;
+    }
+
+
     public CommandUsage setChannel(TextChannel channel) {
         this.channel = channel;
         return this;
@@ -49,7 +55,8 @@ public class CommandUsage {
 
         EmbedBuilder embed = new EmbedBuilder()
                 .setAuthor(this.command, null, avatar)
-                .setColor(Utilities.getUtils().blue);
+                .setColor(0x2F3136)
+                .setFooter(this.information);
         // Add all commands usages
         usages.forEach(usage -> {
             embed.addField(
