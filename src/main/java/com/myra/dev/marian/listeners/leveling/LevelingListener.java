@@ -23,17 +23,19 @@ public class LevelingListener implements Listener {
     public void execute(ListenerContext ctx) throws Exception {
         if (ctx.getEvent().getAuthor().isBot()) return; // Check if member is a bot
 
-        final GetMember db = new Database(ctx.getGuild()).getMembers().getMember(ctx.getEvent().getMember()); // Get member from database
+        final Member member = ctx.getEvent().getMember();
+        final Guild guild = ctx.getGuild();
+        final GetMember db = new Database(guild).getMembers().getMember(member); // Get member from database
 
         // Update message count
         final Integer messages = db.getInteger("messages"); // Get current messages
         db.setInteger("messages", messages + 1); // Add 1 message
 
-        if (ctx.getMessage().getContentRaw().startsWith(new Database(ctx.getGuild()).getString("prefix")))
+        if (ctx.getMessage().getContentRaw().startsWith(new Database(guild).getString("prefix")))
             return; // Message is a command
         if (!cooldown(ctx)) return; // Cooldown
 
-        LEVELING.levelUp(ctx.getEvent().getMember(), ctx.getChannel(), db, getXpFromMessage(ctx.getMessage())); // Check for new level
+        LEVELING.levelUp(member, ctx.getChannel(), db, getXpFromMessage(ctx.getMessage())); // Check for new level
         db.setInteger("xp", db.getInteger("xp") + getXpFromMessage(ctx.getMessage())); // Update xp
     }
 
