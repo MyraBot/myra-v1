@@ -55,16 +55,10 @@ public class TwitchNotification {
                     for (String streamer : streamers) {
                         JSONObject stream = new Twitch().getStream(streamer); // Get stream information
 
-                        // Streamer is not found
-                        if (stream == null) {
-                            NotificationsTwitchManager.getInstance().removeStreamer(guild, streamer); // Remove streamer
-                            continue;
-                        }
+                        // Stream is not online
+                        if (stream == null) continue;
 
-                        // Streamer is offline
-                        if (!stream.getBoolean("is_live")) continue;
-
-                        //get stream start
+                        // Get stream start
                         final ZonedDateTime date = ZonedDateTime.parse(stream.getString("started_at"));
                         long publishedAtInMillis = date.toInstant().toEpochMilli(); // Get stream start in milliseconds
 
@@ -74,7 +68,7 @@ public class TwitchNotification {
 
                         // Get all values
                         final String id = stream.getString("id");
-                        final String name = stream.getString("display_name"); // Get user name of streamer
+                        final String name = stream.getString("user_name"); // Get user name of streamer
                         final String title = stream.getString("title"); // Get stream title
                         final String thumbnail = stream.getString("thumbnail_url"); // Get profile picture
                         final String preview = String.format("https://static-cdn.jtvnw.net/previews-ttv/live_user_%s-440x248.jpg", name); // Get preview image
