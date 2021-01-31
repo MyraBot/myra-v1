@@ -89,10 +89,10 @@ public class Twitch {
         Request channel = new Request.Builder()
                 .addHeader("client-id", Utilities.getUtils().twitchClientId)
                 .addHeader("Authorization", "Bearer " + accessToken)
-                .url("https://api.twitch.tv/helix/streams?user_login=%n&first=1")
+                .url("https://api.twitch.tv/helix/search/channels?query=" + channelName)
                 .build();
         // Execute request
-        String channelOutput;
+        String channelOutput = null;
         try (Response channelResponse = Utilities.HTTP_CLIENT.newCall(channel).execute()) {
             channelOutput = channelResponse.body().string();
         }
