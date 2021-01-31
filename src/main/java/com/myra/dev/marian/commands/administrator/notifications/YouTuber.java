@@ -45,7 +45,7 @@ public class YouTuber implements Command {
 
         final String channelId = channelInformation.getString("channelId"); // get channel id
         final String channelName = channelInformation.getString("title"); // Get youtube channel name
-        final String profilePicture = channelInformation.getJSONObject("thumnails").getJSONObject("medium").getString("url"); // Get profile picture
+        final String profilePicture = channelInformation.getJSONObject("thumbnails").getJSONObject("medium").getString("url"); // Get profile picture
 
         // Remove youtuber
         if (NotificationsYoutubeManager.getInstance().getYoutubers(ctx.getGuild()).contains(channelId)) {
