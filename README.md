@@ -1,6 +1,6 @@
 # ✨ Myra v1
 
-With this version Myra went from a private bot to a public one. I also switched from gradle to maven. This is also the reason
+With this version Myra went from a private bot to a public one. I also switched from maven to gradle. This is also the reason
 for an entire new repository. Because this was my first ever project you will find some very dirty code. I advise you to not
 copy code from here. Use the code snippets to get inspiration on how to do things, but not to just copy and paste in your
 project. Also, this Bot uses a very old Discord API version and probably won't work well with the new changes. Hope you can
